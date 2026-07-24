@@ -1,1 +1,151 @@
 @import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Fonts (self-hosted, OFL) — Bungee for display, Archivo for UI/body.
+   --------------------------------------------------------------------------- */
+@font-face {
+  font-family: "Bungee";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./fonts/bungee.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Archivo";
+  font-style: normal;
+  font-weight: 100 900; /* variable font: covers 400/600/700 */
+  font-display: swap;
+  src: url("./fonts/archivo.woff2") format("woff2");
+}
+
+/* ---------------------------------------------------------------------------
+   Pop-art design tokens (Tailwind v4 CSS-first config).
+   Generates utilities: font-display, font-sans, bg/text/border-pop-*,
+   shadow-pop / shadow-pop-sm / shadow-pop-lg.
+   --------------------------------------------------------------------------- */
+@theme {
+  --font-display: "Bungee", "Arial Black", Impact, sans-serif;
+  --font-sans: "Archivo", system-ui, sans-serif;
+
+  --color-pop-ink: #141414;
+  --color-pop-paper: #fff8e7;
+  --color-pop-pink: #ff2d95;
+  --color-pop-cyan: #16d1e0;
+  --color-pop-yellow: #ffd800;
+  --color-pop-blue: #2b59ff;
+  --color-pop-green: #1fd65f;
+  --color-pop-red: #ff2b2b;
+  --color-pop-orange: #ff7a00;
+
+  /* Soft offset "comic" shadows — small offset, mostly hard-edged. */
+  --shadow-pop-sm: 2px 2px 0 rgba(20, 20, 20, 0.85);
+  --shadow-pop: 4px 4px 0 rgba(20, 20, 20, 0.9);
+  --shadow-pop-lg: 6px 6px 12px rgba(20, 20, 20, 0.25);
+}
+
+/* Ben-Day / halftone dot texture — reusable as a decorative accent. */
+@utility halftone {
+  background-image: radial-gradient(
+    circle,
+    var(--color-pop-ink) 1px,
+    transparent 1.5px
+  );
+  background-size: 12px 12px;
+}
+
+@layer base {
+  body {
+    @apply bg-pop-paper text-pop-ink font-sans;
+    /* Very discreet global Ben-Day wash. */
+    background-image: radial-gradient(
+      circle,
+      rgba(20, 20, 20, 0.05) 1px,
+      transparent 1.5px
+    );
+    background-size: 14px 14px;
+  }
+}
+
+@layer components {
+  /* Card surface — rounded corners kept (soft variant). */
+  .pop-card {
+    @apply rounded-xl border-2 border-pop-ink bg-white shadow-pop transition-transform duration-150;
+  }
+
+  /* Primary button — pink fill, display type, gentle press-on-hover. */
+  .pop-btn {
+    @apply rounded-lg border-2 border-pop-ink bg-pop-pink text-white font-display uppercase tracking-wide shadow-pop-sm transition-all duration-100;
+  }
+  .pop-btn:hover:not(:disabled) {
+    @apply -translate-x-0.5 -translate-y-0.5 shadow-pop;
+  }
+  .pop-btn:active:not(:disabled) {
+    @apply translate-x-0 translate-y-0 shadow-none;
+  }
+  .pop-btn:disabled {
+    @apply opacity-60 cursor-not-allowed;
+  }
+
+  /* Outline button — white fill (pagination). */
+  .pop-btn-outline {
+    @apply rounded-lg border-2 border-pop-ink bg-white text-pop-ink font-semibold shadow-pop-sm transition-all duration-100;
+  }
+  .pop-btn-outline:hover:not(:disabled) {
+    @apply -translate-x-0.5 -translate-y-0.5 shadow-pop bg-pop-paper;
+  }
+  .pop-btn-outline:active:not(:disabled) {
+    @apply translate-x-0 translate-y-0 shadow-none;
+  }
+  .pop-btn-outline:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  /* Inputs & selects. */
+  .pop-input {
+    @apply rounded-lg border-2 border-pop-ink bg-white shadow-pop-sm transition-shadow duration-100 focus:shadow-pop focus:outline-none;
+  }
+
+  /* Meta chip. */
+  .pop-chip {
+    @apply rounded-md border border-pop-ink px-1.5 py-0.5 text-xs font-bold uppercase;
+  }
+
+  /* Status pill base. */
+  .pop-badge {
+    @apply inline-block rounded-md border border-pop-ink px-2 py-0.5 text-xs font-display uppercase tracking-wide;
+  }
+
+  /* Cover block — colour rotates per card (Warhol grid effect, pure CSS). */
+  .pop-cover {
+    background: var(--card-accent, var(--color-pop-yellow));
+  }
+
+  /* Warhol colour rotation across result-grid cards (siblings in the <ul>). */
+  .pop-card:nth-child(4n + 1) {
+    --card-accent: var(--color-pop-pink);
+  }
+  .pop-card:nth-child(4n + 2) {
+    --card-accent: var(--color-pop-cyan);
+  }
+  .pop-card:nth-child(4n + 3) {
+    --card-accent: var(--color-pop-yellow);
+  }
+  .pop-card:nth-child(4n + 4) {
+    --card-accent: var(--color-pop-blue);
+  }
+
+  /* Alternating chip colours within a card's meta row. */
+  .pop-chip:nth-of-type(4n + 1) {
+    @apply bg-pop-yellow;
+  }
+  .pop-chip:nth-of-type(4n + 2) {
+    @apply bg-pop-cyan;
+  }
+  .pop-chip:nth-of-type(4n + 3) {
+    @apply bg-pop-pink text-white;
+  }
+  .pop-chip:nth-of-type(4n + 4) {
+    @apply bg-pop-green;
+  }
+}

@@ -14,11 +14,11 @@ const downloadPage = computed(() => data.value?.data)
 
 <template>
   <div class="space-y-4">
-    <h1 class="text-xl font-bold">Download history</h1>
-    <p v-if="isError" class="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+    <h1 class="font-display text-2xl uppercase tracking-wide text-pop-ink [text-shadow:2px_2px_0_var(--color-pop-cyan)]">Download history</h1>
+    <p v-if="isError" class="rounded-lg border-2 border-pop-ink bg-pop-red px-4 py-3 text-sm font-bold text-white shadow-pop">
       {{ (error as Error | null)?.message ?? 'Could not load the download history' }}
     </p>
-    <p v-else-if="isLoading" class="text-sm text-slate-500">Loading…</p>
+    <p v-else-if="isLoading" class="font-display text-sm uppercase tracking-wide text-pop-ink">Loading…</p>
     <HistoryTable
       v-else-if="downloadPage"
       :page="downloadPage"

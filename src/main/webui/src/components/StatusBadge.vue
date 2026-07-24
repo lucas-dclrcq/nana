@@ -4,17 +4,17 @@ import type { DownloadStatus } from '../api/generated/nana'
 const props = defineProps<{ status?: DownloadStatus }>()
 
 const STYLES: Record<string, string> = {
-  PENDING: 'bg-slate-100 text-slate-700',
-  DOWNLOADING: 'bg-blue-100 text-blue-700 animate-pulse',
-  SUCCESS: 'bg-green-100 text-green-700',
-  FAILED: 'bg-red-100 text-red-700',
+  PENDING: 'bg-pop-yellow text-pop-ink',
+  DOWNLOADING: 'bg-pop-cyan text-pop-ink animate-pulse',
+  SUCCESS: 'bg-pop-green text-pop-ink',
+  FAILED: 'bg-pop-red text-white',
 }
 </script>
 
 <template>
   <span
-    class="inline-block rounded-full px-2 py-0.5 text-xs font-semibold"
-    :class="STYLES[props.status ?? ''] ?? 'bg-slate-100 text-slate-700'"
+    class="pop-badge"
+    :class="STYLES[props.status ?? ''] ?? 'bg-pop-yellow text-pop-ink'"
   >
     {{ props.status ?? '—' }}
   </span>

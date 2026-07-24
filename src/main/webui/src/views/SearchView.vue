@@ -28,12 +28,12 @@ const results = computed(() => data.value?.data ?? [])
   <div class="space-y-4">
     <SearchBar v-model="query" @search="search" />
     <SearchFilters v-model:lang="lang" v-model:ext="ext" v-model:content="content" />
-    <p v-if="isError" class="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+    <p v-if="isError" class="rounded-lg border-2 border-pop-ink bg-pop-red px-4 py-3 text-sm font-bold text-white shadow-pop">
       {{ (error as Error | null)?.message ?? 'Search failed' }}
     </p>
-    <p v-else-if="isFetching" class="text-sm text-slate-500">Searching…</p>
+    <p v-else-if="isFetching" class="font-display text-sm uppercase tracking-wide text-pop-ink">Searching…</p>
     <template v-else-if="submitted">
-      <p v-if="results.length === 0" class="text-sm text-slate-500">No results for “{{ submitted }}”.</p>
+      <p v-if="results.length === 0" class="font-display text-sm uppercase tracking-wide text-pop-ink">No results for “{{ submitted }}”.</p>
       <ul v-else class="grid gap-3 sm:grid-cols-2">
         <BookResultCard v-for="book in results" :key="book.md5" :book="book" />
       </ul>

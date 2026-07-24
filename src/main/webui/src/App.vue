@@ -6,21 +6,24 @@ useDownloadEvents()
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 text-slate-900">
-    <header class="border-b border-slate-200 bg-white">
+  <div class="min-h-screen bg-pop-paper text-pop-ink">
+    <header class="border-b-2 border-pop-ink bg-pop-yellow">
       <nav class="mx-auto flex max-w-5xl items-center gap-6 px-4 py-3">
-        <RouterLink to="/" class="text-lg font-bold tracking-tight text-indigo-600">nana</RouterLink>
         <RouterLink
           to="/"
-          class="text-sm font-medium text-slate-600 hover:text-slate-900"
-          exact-active-class="text-slate-900"
+          class="font-display text-2xl uppercase tracking-wide text-pop-ink [text-shadow:2px_2px_0_var(--color-pop-pink)]"
+        >nana</RouterLink>
+        <RouterLink
+          to="/"
+          class="text-sm font-semibold uppercase tracking-wide text-pop-ink/70 hover:text-pop-ink"
+          exact-active-class="!text-pop-ink border-b-2 border-pop-pink"
         >
           Search
         </RouterLink>
         <RouterLink
           to="/history"
-          class="text-sm font-medium text-slate-600 hover:text-slate-900"
-          active-class="text-slate-900"
+          class="text-sm font-semibold uppercase tracking-wide text-pop-ink/70 hover:text-pop-ink"
+          active-class="!text-pop-ink border-b-2 border-pop-pink"
         >
           History
         </RouterLink>
