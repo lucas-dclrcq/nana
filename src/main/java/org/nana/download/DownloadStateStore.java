@@ -1,11 +1,16 @@
 package org.nana.download;
 
+import io.quarkus.hibernate.reactive.panache.common.WithSession;
+import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
+import io.smallrye.mutiny.Uni;
+import jakarta.data.page.PageRequest;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.Locale;
 import org.nana.api.ApiDtos.DownloadDto;
+import org.nana.api.ApiDtos.DownloadPage;
+import org.nana.api.ApiException;
 
 @ApplicationScoped
 public class DownloadStateStore {
@@ -17,8 +22,8 @@ public class DownloadStateStore {
 
     public record DownloadJob(long id, String md5, String title, String extension) {}
 
-    @Transactional
-    public Download createPending(String md5, String title, String author, String extension, String requestedBy) {
+    @WithTransaction
+    public Uni<Download> createPending(String md5, String title, String author, String extension, String requestedBy) {
         Download download = new Download();
         download.md5 = md5.toLowerCase(Locale.ROOT);
         download.title = title;
@@ -27,45 +32,70 @@ public class DownloadStateStore {
         download.requestedBy = requestedBy;
         download.status = DownloadStatus.PENDING;
         download.requestedAt = Instant.now();
-        repository.persist(download);
-        return download;
+        return repository.persist(download).replaceWith(download);
     }
 
-    @Transactional
-    public DownloadJob markDownloading(long id) {
-        Download download = require(id);
-        download.status = DownloadStatus.DOWNLOADING;
-        download.startedAt = Instant.now();
-        return new DownloadJob(download.id, download.md5, download.title, download.extension);
+    @WithTransaction
+    public Uni<DownloadJob> markDownloading(long id) {
+        return require(id).map(download -> {
+            download.status = DownloadStatus.DOWNLOADING;
+            download.startedAt = Instant.now();
+            return new DownloadJob(download.id, download.md5, download.title, download.extension);
+        });
     }
 
-    @Transactional
-    public DownloadDto markSuccess(long id, String filePath, long sizeBytes, int domainIndexUsed) {
-        Download download = require(id);
-        download.status = DownloadStatus.SUCCESS;
-        download.finishedAt = Instant.now();
-        download.filePath = filePath;
-        download.sizeBytes = sizeBytes;
-        download.domainIndexUsed = domainIndexUsed;
-        download.errorMessage = null;
-        return DownloadDto.of(download);
+    @WithTransaction
+    public Uni<DownloadDto> markSuccess(long id, String filePath, long sizeBytes, int domainIndexUsed) {
+        return require(id).map(download -> {
+            download.status = DownloadStatus.SUCCESS;
+            download.finishedAt = Instant.now();
+            download.filePath = filePath;
+            download.sizeBytes = sizeBytes;
+            download.domainIndexUsed = domainIndexUsed;
+            download.errorMessage = null;
+            return DownloadDto.of(download);
+        });
     }
 
-    @Transactional
-    public DownloadDto markFailed(long id, String errorMessage) {
-        Download download = require(id);
-        download.status = DownloadStatus.FAILED;
-        download.finishedAt = Instant.now();
-        download.errorMessage = truncate(errorMessage);
-        return DownloadDto.of(download);
+    @WithTransaction
+    public Uni<DownloadDto> markFailed(long id, String errorMessage) {
+        return require(id).map(download -> {
+            download.status = DownloadStatus.FAILED;
+            download.finishedAt = Instant.now();
+            download.errorMessage = truncate(errorMessage);
+            return DownloadDto.of(download);
+        });
     }
 
-    private Download require(long id) {
-        Download download = repository.findById(id);
-        if (download == null) {
-            throw new IllegalStateException("Download " + id + " not found");
-        }
-        return download;
+    // Reads need an ambient reactive session; the @HQL/find methods do not open one themselves.
+    @WithSession
+    public Uni<Boolean> activeExists(String md5) {
+        return repository.activeExists(md5);
+    }
+
+    // The reactive @HQL Page query does not populate the total (unlike the blocking one), so the
+    // count is fetched explicitly within the same session.
+    @WithSession
+    public Uni<DownloadPage> history(int page, int size) {
+        return repository.history(PageRequest.ofPage(page + 1L, size, false))
+                .flatMap(result -> repository.count().map(total -> new DownloadPage(
+                        result.content().stream().map(DownloadDto::of).toList(),
+                        total,
+                        total == 0 ? 0 : (total + size - 1) / size,
+                        page,
+                        size)));
+    }
+
+    @WithSession
+    public Uni<DownloadDto> find(long id) {
+        return repository.findById(id)
+                .onItem().ifNull().failWith(() -> ApiException.notFound("Download " + id + " not found"))
+                .map(DownloadDto::of);
+    }
+
+    private Uni<Download> require(long id) {
+        return repository.findById(id)
+                .onItem().ifNull().failWith(() -> new IllegalStateException("Download " + id + " not found"));
     }
 
     private static String truncate(String value) {

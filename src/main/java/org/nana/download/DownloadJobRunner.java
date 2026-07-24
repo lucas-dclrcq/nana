@@ -1,19 +1,15 @@
 package org.nana.download;
 
 import io.quarkus.logging.Log;
+import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.text.Normalizer;
 import java.util.Locale;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.context.ManagedExecutor;
 import org.nana.annasarchive.AnnaArchiveException;
 import org.nana.annasarchive.AnnaArchiveGateway;
-import org.nana.api.ApiDtos.DownloadDto;
 import org.nana.download.DownloadStateStore.DownloadJob;
 import org.nana.webhook.WebhookNotifier;
 
@@ -31,61 +27,68 @@ public class DownloadJobRunner {
     @Inject
     WebhookNotifier webhookNotifier;
 
-    @Inject
-    ManagedExecutor executor;
-
     @ConfigProperty(name = "nana.download.directory")
     Path downloadDirectory;
 
     @ConfigProperty(name = "nana.annas-archive.max-domain-index")
     int maxDomainIndex;
 
+    // Fire-and-forget: the request thread returns 202 immediately while the download runs on the
+    // event loop. The crash handler mirrors the terminal-state guarantee of the in-flow failures.
     public void start(long downloadId) {
-        executor.execute(() -> {
-            try {
-                run(downloadId);
-            } catch (RuntimeException e) {
-                Log.errorf(e, "Download %d crashed", downloadId);
-                try {
-                    webhookNotifier.downloadFailed(
-                            stateStore.markFailed(downloadId, "internal error: " + e.getMessage()));
-                } catch (RuntimeException ignored) {
-                    // the download stays in its last persisted state; the crash is already logged
-                }
-            }
-        });
+        run(downloadId).subscribe().with(
+                ignored -> {},
+                error -> {
+                    Log.errorf(error, "Download %d crashed", downloadId);
+                    stateStore.markFailed(downloadId, "internal error: " + error.getMessage())
+                            .flatMap(webhookNotifier::downloadFailed)
+                            .subscribe().with(ignored -> {}, ignored -> {
+                                // the download stays in its last persisted state; the crash is logged
+                            });
+                });
     }
 
-    private void run(long downloadId) {
-        DownloadJob job = stateStore.markDownloading(downloadId);
-        Log.infof("Download %d started (md5 %s)", downloadId, job.md5());
-        String lastError = "no download attempt was made";
-        for (int domainIndex = 0; domainIndex <= maxDomainIndex; domainIndex++) {
-            Path partFile = null;
-            try {
-                String url = gateway.resolveDownloadUrl(job.md5(), domainIndex);
-                Path target = downloadDirectory.resolve(fileName(job));
-                partFile = target.resolveSibling(target.getFileName() + ".part");
-                long sizeBytes = gateway.streamToFile(url, partFile);
-                Files.move(partFile, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
-                DownloadDto result = stateStore.markSuccess(downloadId, target.toString(), sizeBytes, domainIndex);
-                Log.infof("Download %d succeeded: %s (%d bytes, domain index %d)",
-                        downloadId, target, sizeBytes, domainIndex);
-                webhookNotifier.downloadSucceeded(result);
-                return;
-            } catch (AnnaArchiveException e) {
-                lastError = e.getMessage();
-                Log.warnf("Download %d attempt with domain index %d failed: %s", downloadId, domainIndex, lastError);
-                deleteQuietly(partFile);
-            } catch (IOException e) {
-                lastError = "could not move downloaded file: " + e.getMessage();
-                Log.warnf("Download %d attempt with domain index %d failed: %s", downloadId, domainIndex, lastError);
-                deleteQuietly(partFile);
-            }
+    private Uni<Void> run(long downloadId) {
+        return stateStore.markDownloading(downloadId)
+                .invoke(job -> Log.infof("Download %d started (md5 %s)", downloadId, job.md5()))
+                .flatMap(job -> attempt(downloadId, job, 0, "no download attempt was made"));
+    }
+
+    private Uni<Void> attempt(long downloadId, DownloadJob job, int domainIndex, String lastError) {
+        if (domainIndex > maxDomainIndex) {
+            return stateStore.markFailed(downloadId, lastError)
+                    .invoke(result -> Log.errorf("Download %d failed: %s", downloadId, lastError))
+                    .flatMap(webhookNotifier::downloadFailed);
         }
-        DownloadDto result = stateStore.markFailed(downloadId, lastError);
-        Log.errorf("Download %d failed: %s", downloadId, lastError);
-        webhookNotifier.downloadFailed(result);
+        Path target = downloadDirectory.resolve(fileName(job));
+        Path partFile = target.resolveSibling(target.getFileName() + ".part");
+        return fetch(job.md5(), domainIndex, partFile, target)
+                .onItemOrFailure().transformToUni((sizeBytes, failure) -> {
+                    if (failure == null) {
+                        return stateStore.markSuccess(downloadId, target.toString(), sizeBytes, domainIndex)
+                                .invoke(result -> Log.infof("Download %d succeeded: %s (%d bytes, domain index %d)",
+                                        downloadId, target, sizeBytes, domainIndex))
+                                .flatMap(webhookNotifier::downloadSucceeded);
+                    }
+                    // only resolve/stream/move errors are retryable; a transport or DB error
+                    // propagates to the crash handler exactly as the blocking version did
+                    if (!(failure instanceof AnnaArchiveException)) {
+                        return Uni.createFrom().failure(failure);
+                    }
+                    String error = failure.getMessage();
+                    Log.warnf("Download %d attempt with domain index %d failed: %s", downloadId, domainIndex, error);
+                    return gateway.deleteQuietly(partFile)
+                            .flatMap(ignored -> attempt(downloadId, job, domainIndex + 1, error));
+                });
+    }
+
+    private Uni<Long> fetch(String md5, int domainIndex, Path partFile, Path target) {
+        return gateway.resolveDownloadUrl(md5, domainIndex)
+                .flatMap(url -> gateway.streamToFile(url, partFile))
+                .flatMap(sizeBytes -> gateway.move(partFile, target)
+                        .onFailure().transform(e ->
+                                new AnnaArchiveException("could not move downloaded file: " + e.getMessage()))
+                        .replaceWith(sizeBytes));
     }
 
     private static String fileName(DownloadJob job) {
@@ -107,16 +110,5 @@ public class DownloadJobRunner {
             normalized = normalized.substring(0, SLUG_MAX_LENGTH).replaceAll("-+$", "");
         }
         return normalized.isEmpty() ? "book" : normalized;
-    }
-
-    private static void deleteQuietly(Path path) {
-        if (path == null) {
-            return;
-        }
-        try {
-            Files.deleteIfExists(path);
-        } catch (IOException ignored) {
-            // best effort cleanup of a partial download
-        }
     }
 }

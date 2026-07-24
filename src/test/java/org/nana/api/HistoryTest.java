@@ -10,7 +10,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
-import org.nana.download.DownloadStateStore;
 import org.nana.testsupport.TestDataSupport;
 import org.nana.testsupport.WireMockResource;
 
@@ -21,18 +20,15 @@ class HistoryTest {
     private static final Header AUTH = new Header("X-Authentik-Username", "lucas");
 
     @Inject
-    DownloadStateStore stateStore;
-
-    @Inject
     TestDataSupport testData;
 
     @Test
     void paginatesHistoryMostRecentFirst() {
         testData.deleteAll();
         Instant now = Instant.now();
-        long oldest = stateStore.createPending("0000000000000000000000000000000a", "Oldest", null, "epub", "lucas").id;
-        long middle = stateStore.createPending("0000000000000000000000000000000b", "Middle", null, "epub", "lucas").id;
-        long newest = stateStore.createPending("0000000000000000000000000000000c", "Newest", null, "epub", "lucas").id;
+        long oldest = testData.createPending("0000000000000000000000000000000a", "Oldest", null, "epub", "lucas");
+        long middle = testData.createPending("0000000000000000000000000000000b", "Middle", null, "epub", "lucas");
+        long newest = testData.createPending("0000000000000000000000000000000c", "Newest", null, "epub", "lucas");
         testData.setRequestedAt(oldest, now.minus(3, ChronoUnit.HOURS));
         testData.setRequestedAt(middle, now.minus(2, ChronoUnit.HOURS));
         testData.setRequestedAt(newest, now.minus(1, ChronoUnit.HOURS));

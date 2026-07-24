@@ -1,6 +1,7 @@
 package org.nana.download;
 
 import io.quarkus.hibernate.panache.PanacheEntity;
+import io.quarkus.hibernate.panache.WithId;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -8,7 +9,7 @@ import jakarta.persistence.Enumerated;
 import java.time.Instant;
 
 @Entity
-public class Download extends PanacheEntity {
+public class Download extends WithId.AutoLong implements PanacheEntity.Reactive {
 
     @Column(nullable = false, length = 32)
     public String md5;

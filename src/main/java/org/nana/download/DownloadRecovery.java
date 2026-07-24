@@ -1,11 +1,13 @@
 package org.nana.download;
 
+import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
 import io.quarkus.logging.Log;
 import io.quarkus.runtime.StartupEvent;
+import io.quarkus.vertx.VertxContextSupport;
+import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,26 +22,36 @@ public class DownloadRecovery {
     @Inject
     DownloadRepository repository;
 
+    // Injected through the client proxy so the @WithTransaction interceptor fires: a self
+    // invocation from onStart would bypass it.
+    @Inject
+    DownloadRecovery self;
+
     @ConfigProperty(name = "nana.download.directory")
     Path downloadDirectory;
 
     void onStart(@Observes StartupEvent event) {
-        failStrandedDownloads();
+        try {
+            VertxContextSupport.subscribeAndAwait(() -> self.failStrandedDownloads());
+        } catch (Throwable t) {
+            Log.errorf(t, "Could not fail stranded downloads at startup");
+        }
         sweepPartFiles();
     }
 
-    // Jobs live only in this JVM's executor: any non-terminal row at boot was orphaned by a
+    // Jobs live only in this JVM's event loop: any non-terminal row at boot was orphaned by a
     // crash or restart and would otherwise block its md5 forever through the 409 rule.
-    @Transactional
-    void failStrandedDownloads() {
-        List<Download> stranded = repository.byStatusIn(List.of(DownloadStatus.PENDING, DownloadStatus.DOWNLOADING));
-        for (Download download : stranded) {
-            download.status = DownloadStatus.FAILED;
-            download.finishedAt = Instant.now();
-            download.errorMessage = "interrupted by application restart";
-            Log.warnf("Download %d (md5 %s) marked failed: interrupted by application restart",
-                    download.id, download.md5);
-        }
+    @WithTransaction
+    public Uni<Void> failStrandedDownloads() {
+        return repository.byStatusIn(List.of(DownloadStatus.PENDING, DownloadStatus.DOWNLOADING))
+                .invoke(stranded -> stranded.forEach(download -> {
+                    download.status = DownloadStatus.FAILED;
+                    download.finishedAt = Instant.now();
+                    download.errorMessage = "interrupted by application restart";
+                    Log.warnf("Download %d (md5 %s) marked failed: interrupted by application restart",
+                            download.id, download.md5);
+                }))
+                .replaceWithVoid();
     }
 
     private void sweepPartFiles() {

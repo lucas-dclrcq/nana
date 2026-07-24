@@ -1,5 +1,6 @@
 package org.nana.download;
 
+import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -40,13 +41,14 @@ public class DownloadResource {
     @APIResponse(responseCode = "202", description = "Download accepted and queued",
             content = @Content(schema = @Schema(implementation = DownloadDto.class)))
     @Operation(operationId = "createDownload", summary = "Queue a server-side ebook download")
-    public DownloadDto create(@Valid @NotNull DownloadRequest request) {
-        return downloadService.create(request, currentUser.username());
+    public Uni<DownloadDto> create(@Valid @NotNull DownloadRequest request) {
+        String requestedBy = currentUser.username();
+        return downloadService.create(request, requestedBy);
     }
 
     @GET
     @Operation(operationId = "listDownloads", summary = "List downloads, most recent first")
-    public DownloadPage list(
+    public Uni<DownloadPage> list(
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue("20") int size) {
         return downloadService.history(Math.max(page, 0), Math.clamp(size, 1, MAX_PAGE_SIZE));
@@ -55,7 +57,7 @@ public class DownloadResource {
     @GET
     @Path("/{id}")
     @Operation(operationId = "getDownload", summary = "Get one download")
-    public DownloadDto get(@PathParam("id") long id) {
+    public Uni<DownloadDto> get(@PathParam("id") long id) {
         return downloadService.get(id);
     }
 }

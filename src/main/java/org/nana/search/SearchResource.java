@@ -1,5 +1,6 @@
 package org.nana.search;
 
+import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -20,13 +21,13 @@ public class SearchResource {
 
     @GET
     @Operation(operationId = "searchBooks", summary = "Search ebooks on Anna's Archive")
-    public List<SearchResult> search(
+    public Uni<List<SearchResult>> search(
             @QueryParam("q") String query,
             @QueryParam("lang") String language,
             @QueryParam("ext") String extension,
             @QueryParam("content") String content) {
         if (query == null || query.isBlank()) {
-            throw ApiException.badRequest("q is required");
+            return Uni.createFrom().failure(ApiException.badRequest("q is required"));
         }
         return searchService.search(query, language, extension, content);
     }
