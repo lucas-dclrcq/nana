@@ -1,15 +1,11 @@
 package org.nana.webhook;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
 import io.quarkus.signals.Receives;
 import io.smallrye.mutiny.Uni;
-import io.vertx.mutiny.core.buffer.Buffer;
-import io.vertx.mutiny.ext.web.client.WebClient;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.nana.download.DownloadFailed;
 import org.nana.download.DownloadSucceeded;
 import org.nana.shared.ApiDtos.DownloadDto;
@@ -18,18 +14,19 @@ import java.util.Optional;
 
 @ApplicationScoped
 public class WebhookNotifier {
+    // TODO: une seule classe de config pour toutes les properties
+    private final boolean enabled;
+    // TODO: configuration validation : url doit être présente si enabled
+    private final Optional<String> url;
+    private final WebhookClient webhookClient;
 
-    @ConfigProperty(name = "nana.webhook.enabled")
-    boolean enabled;
-
-    @ConfigProperty(name = "nana.webhook.url")
-    Optional<String> url;
-
-    @Inject
-    ObjectMapper objectMapper;
-
-    @Inject
-    WebClient webClient;
+    public WebhookNotifier(@ConfigProperty(name = "nana.webhook.enabled") boolean enabled, 
+                           @ConfigProperty(name = "nana.webhook.url") Optional<String> url, 
+                           @RestClient WebhookClient webhookClient) {
+        this.enabled = enabled;
+        this.url = url;
+        this.webhookClient = webhookClient;
+    }
 
     Uni<Void> onDownloadSucceeded(@Receives DownloadSucceeded event) {
         return send("download.succeeded", event.download());
@@ -43,30 +40,18 @@ public class WebhookNotifier {
         if (!enabled) {
             return Uni.createFrom().voidItem();
         }
+        
         String target = url.filter(value -> !value.isBlank()).orElse(null);
+        
         if (target == null) {
             Log.warnf("Webhook %s for download %d skipped: nana.webhook.url is not set", event, download.id());
             return Uni.createFrom().voidItem();
         }
-        String body;
-        try {
-            body = objectMapper.writeValueAsString(new WebhookPayload(event, toWebhookDownload(download)));
-        } catch (JsonProcessingException e) {
-            Log.warnf(e, "Webhook %s for download %d failed", event, download.id());
-            return Uni.createFrom().voidItem();
-        }
-        return webClient.postAbs(target)
-                .putHeader("Content-Type", "application/json")
-                .timeout(10_000)
-                .sendBuffer(Buffer.buffer(body))
-                .invoke(response -> {
-                    if (response.statusCode() / 100 == 2) {
-                        Log.infof("Webhook %s sent for download %d", event, download.id());
-                    } else {
-                        Log.warnf("Webhook %s for download %d failed with HTTP %d",
-                                event, download.id(), response.statusCode());
-                    }
-                })
+        
+        WebhookPayload payload = new WebhookPayload(event, toWebhookDownload(download));
+
+        return webhookClient.notify(target, payload)
+                .invoke(() -> Log.infof("Webhook %s sent for download %d", event, download.id()))
                 .replaceWithVoid()
                 .onFailure().invoke(e -> Log.warnf(e, "Webhook %s for download %d failed", event, download.id()))
                 .onFailure().recoverWithItem((Void) null);
