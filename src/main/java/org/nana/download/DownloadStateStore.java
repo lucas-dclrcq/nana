@@ -74,6 +74,7 @@ public class DownloadStateStore {
         return repository.activeExists(md5);
     }
 
+    // TODO : use token pagination to avoid fetching total
     // The reactive @HQL Page query does not populate the total (unlike the blocking one), so the
     // count is fetched explicitly within the same session.
     @WithSession

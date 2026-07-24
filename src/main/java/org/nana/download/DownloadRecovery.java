@@ -7,26 +7,26 @@ import io.quarkus.vertx.VertxContextSupport;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
-import jakarta.inject.Inject;
+import org.nana.shared.NanaConfiguration;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Stream;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
 public class DownloadRecovery {
 
     private final DownloadRepository repository;
     private final DownloadRecovery self;
-    private final Path downloadDirectory;
+    private final NanaConfiguration config;
 
-    public DownloadRecovery(DownloadRepository repository, DownloadRecovery self, @ConfigProperty(name = "nana.download.directory") Path downloadDirectory) {
+    public DownloadRecovery(DownloadRepository repository, DownloadRecovery self, NanaConfiguration config) {
         this.repository = repository;
         this.self = self;
-        this.downloadDirectory = downloadDirectory;
+        this.config = config;
     }
 
     void onStart(@Observes StartupEvent event) {
@@ -54,14 +54,14 @@ public class DownloadRecovery {
     }
 
     private void sweepPartFiles() {
-        if (!Files.isDirectory(downloadDirectory)) {
+        if (!Files.isDirectory(config.download().directory())) {
             return;
         }
-        try (Stream<Path> files = Files.list(downloadDirectory)) {
+        try (Stream<Path> files = Files.list(config.download().directory())) {
             files.filter(path -> path.getFileName().toString().endsWith(".part"))
                     .forEach(this::deleteOrphan);
         } catch (IOException e) {
-            Log.warnf("Could not sweep partial downloads in %s: %s", downloadDirectory, e.getMessage());
+            Log.warnf("Could not sweep partial downloads in %s: %s", config.download().directory(), e.getMessage());
         }
     }
 

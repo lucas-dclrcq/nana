@@ -4,10 +4,9 @@ import io.quarkus.logging.Log;
 import io.quarkus.signals.Signal;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.nana.annasarchive.AnnaArchiveException;
 import org.nana.annasarchive.AnnaArchiveGateway;
+import org.nana.shared.NanaConfiguration;
 
 import java.nio.file.Path;
 import java.text.Normalizer;
@@ -18,26 +17,20 @@ public class DownloadJobRunner {
 
     private static final int SLUG_MAX_LENGTH = 80;
 
-    @Inject
-    DownloadStateStore stateStore;
+    private final DownloadStateStore stateStore;
+    private final AnnaArchiveGateway gateway;
+    private final Signal<DownloadSucceeded> downloadSucceeded;
+    private final Signal<DownloadFailed> downloadFailed;
+    private final NanaConfiguration config;
 
-    @Inject
-    AnnaArchiveGateway gateway;
+    public DownloadJobRunner(DownloadStateStore stateStore, AnnaArchiveGateway gateway, Signal<DownloadSucceeded> downloadSucceeded, Signal<DownloadFailed> downloadFailed, NanaConfiguration config) {
+        this.stateStore = stateStore;
+        this.gateway = gateway;
+        this.downloadSucceeded = downloadSucceeded;
+        this.downloadFailed = downloadFailed;
+        this.config = config;
+    }
 
-    @Inject
-    Signal<DownloadSucceeded> downloadSucceeded;
-
-    @Inject
-    Signal<DownloadFailed> downloadFailed;
-
-    @ConfigProperty(name = "nana.download.directory")
-    Path downloadDirectory;
-
-    @ConfigProperty(name = "nana.annas-archive.max-domain-index")
-    int maxDomainIndex;
-
-    // Fire-and-forget: the request thread returns 202 immediately while the download runs on the
-    // event loop. The crash handler mirrors the terminal-state guarantee of the in-flow failures.
     public void start(long downloadId) {
         run(downloadId).subscribe().with(
                 ignored -> {},
@@ -45,9 +38,7 @@ public class DownloadJobRunner {
                     Log.errorf(error, "Download %d crashed", downloadId);
                     stateStore.markFailed(downloadId, "internal error: " + error.getMessage())
                             .invoke(result -> downloadFailed.publish(new DownloadFailed(result)))
-                            .subscribe().with(ignored -> {}, ignored -> {
-                                // the download stays in its last persisted state; the crash is logged
-                            });
+                            .subscribe().with(ignored -> {}, ignored -> {});
                 });
     }
 
@@ -58,13 +49,13 @@ public class DownloadJobRunner {
     }
 
     private Uni<Void> attempt(long downloadId, DownloadJob job, int domainIndex, String lastError) {
-        if (domainIndex > maxDomainIndex) {
+        if (domainIndex > config.annasArchive().maxDomainIndex()) {
             return stateStore.markFailed(downloadId, lastError)
                     .invoke(result -> Log.errorf("Download %d failed: %s", downloadId, lastError))
                     .invoke(result -> downloadFailed.publish(new DownloadFailed(result)))
                     .replaceWithVoid();
         }
-        Path target = downloadDirectory.resolve(fileName(job));
+        Path target = config.download().directory().resolve(fileName(job));
         Path partFile = target.resolveSibling(target.getFileName() + ".part");
         return fetch(job.md5(), domainIndex, partFile, target)
                 .onItemOrFailure().transformToUni((sizeBytes, failure) -> {
@@ -75,11 +66,11 @@ public class DownloadJobRunner {
                                 .invoke(result -> downloadSucceeded.publish(new DownloadSucceeded(result)))
                                 .replaceWithVoid();
                     }
-                    // only resolve/stream/move errors are retryable; a transport or DB error
-                    // propagates to the crash handler exactly as the blocking version did
+      
                     if (!(failure instanceof AnnaArchiveException)) {
                         return Uni.createFrom().failure(failure);
                     }
+                    
                     String error = failure.getMessage();
                     Log.warnf("Download %d attempt with domain index %d failed: %s", downloadId, domainIndex, error);
                     return gateway.deleteQuietly(partFile)
