@@ -1,4 +1,4 @@
-package org.nana.service;
+package org.nana.download;
 
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -14,7 +14,8 @@ import org.eclipse.microprofile.context.ManagedExecutor;
 import org.nana.annasarchive.AnnaArchiveException;
 import org.nana.annasarchive.AnnaArchiveGateway;
 import org.nana.api.ApiDtos.DownloadDto;
-import org.nana.service.DownloadStateStore.DownloadJob;
+import org.nana.download.DownloadStateStore.DownloadJob;
+import org.nana.webhook.WebhookNotifier;
 
 @ApplicationScoped
 public class DownloadJobRunner {

@@ -1,4 +1,4 @@
-package org.nana.domain;
+package org.nana.download;
 
 import io.quarkus.hibernate.panache.PanacheRepository;
 import jakarta.data.page.Page;

@@ -1,4 +1,4 @@
-package org.nana.service;
+package org.nana.download;
 
 import io.quarkus.logging.Log;
 import jakarta.data.page.Page;
@@ -10,8 +10,6 @@ import org.nana.api.ApiDtos.DownloadDto;
 import org.nana.api.ApiDtos.DownloadPage;
 import org.nana.api.ApiDtos.DownloadRequest;
 import org.nana.api.ApiException;
-import org.nana.domain.Download;
-import org.nana.domain.DownloadRepository;
 
 @ApplicationScoped
 public class DownloadService {

@@ -5,8 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import java.time.Instant;
 import java.util.List;
-import org.nana.domain.Download;
-import org.nana.domain.DownloadStatus;
+import org.nana.download.Download;
+import org.nana.download.DownloadStatus;
 
 public final class ApiDtos {
 

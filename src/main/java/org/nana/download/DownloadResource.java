@@ -1,4 +1,4 @@
-package org.nana.api;
+package org.nana.download;
 
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -21,7 +21,6 @@ import org.nana.api.ApiDtos.DownloadDto;
 import org.nana.api.ApiDtos.DownloadPage;
 import org.nana.api.ApiDtos.DownloadRequest;
 import org.nana.api.security.CurrentUser;
-import org.nana.service.DownloadService;
 
 @Path("/api/downloads")
 @Produces(MediaType.APPLICATION_JSON)

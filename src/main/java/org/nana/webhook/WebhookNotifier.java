@@ -1,4 +1,4 @@
-package org.nana.service;
+package org.nana.webhook;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
@@ -15,7 +15,7 @@ import java.time.Instant;
 import java.util.Optional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.nana.api.ApiDtos.DownloadDto;
-import org.nana.domain.DownloadStatus;
+import org.nana.download.DownloadStatus;
 
 @ApplicationScoped
 public class WebhookNotifier {

@@ -10,7 +10,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
-import org.nana.service.DownloadStateStore;
+import org.nana.download.DownloadStateStore;
 import org.nana.testsupport.TestDataSupport;
 import org.nana.testsupport.WireMockResource;
 

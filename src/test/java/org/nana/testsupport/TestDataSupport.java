@@ -4,7 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
-import org.nana.domain.DownloadRepository;
+import org.nana.download.DownloadRepository;
 
 @ApplicationScoped
 public class TestDataSupport {

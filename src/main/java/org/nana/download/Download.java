@@ -1,4 +1,4 @@
-package org.nana.domain;
+package org.nana.download;
 
 import io.quarkus.hibernate.panache.PanacheEntity;
 import jakarta.persistence.Column;

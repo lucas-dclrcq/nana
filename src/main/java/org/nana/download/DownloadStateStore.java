@@ -1,4 +1,4 @@
-package org.nana.service;
+package org.nana.download;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -6,9 +6,6 @@ import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.Locale;
 import org.nana.api.ApiDtos.DownloadDto;
-import org.nana.domain.Download;
-import org.nana.domain.DownloadRepository;
-import org.nana.domain.DownloadStatus;
 
 @ApplicationScoped
 public class DownloadStateStore {

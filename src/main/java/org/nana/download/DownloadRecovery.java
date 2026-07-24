@@ -1,4 +1,4 @@
-package org.nana.service;
+package org.nana.download;
 
 import io.quarkus.logging.Log;
 import io.quarkus.runtime.StartupEvent;
@@ -13,9 +13,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.stream.Stream;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.nana.domain.Download;
-import org.nana.domain.DownloadRepository;
-import org.nana.domain.DownloadStatus;
 
 @ApplicationScoped
 public class DownloadRecovery {

@@ -1,4 +1,4 @@
-package org.nana.api;
+package org.nana.search;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -9,7 +9,7 @@ import jakarta.ws.rs.core.MediaType;
 import java.util.List;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.nana.api.ApiDtos.SearchResult;
-import org.nana.service.SearchService;
+import org.nana.api.ApiException;
 
 @Path("/api/search")
 @Produces(MediaType.APPLICATION_JSON)

@@ -1,4 +1,4 @@
-package org.nana.domain;
+package org.nana.download;
 
 public enum DownloadStatus {
     PENDING,

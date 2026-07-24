@@ -1,4 +1,4 @@
-package org.nana.service;
+package org.nana.search;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
