@@ -4,10 +4,8 @@ import io.smallrye.mutiny.Uni;
 import io.vertx.core.file.CopyOptions;
 import io.vertx.core.file.OpenOptions;
 import io.vertx.mutiny.core.Vertx;
+import io.vertx.mutiny.core.buffer.Buffer;
 import io.vertx.mutiny.core.file.AsyncFile;
-import io.vertx.mutiny.ext.web.client.HttpResponse;
-import io.vertx.mutiny.ext.web.client.WebClient;
-import io.vertx.mutiny.ext.web.codec.BodyCodec;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.nio.file.Path;
@@ -21,27 +19,22 @@ public class AnnaArchiveGateway {
 
     @Inject
     @RestClient
-    AnnasArchiveClient fastDownloadClient;
+    AnnasArchiveClient annasArchiveClient;
 
     @Inject
     Vertx vertx;
-
-    @Inject
-    WebClient webClient;
 
     @ConfigProperty(name = "nana.download.timeout")
     Duration downloadTimeout;
 
     public Uni<String> resolveDownloadUrl(String md5, int domainIndex) {
-        return fastDownloadClient.fastDownload(md5, 0, domainIndex)
+        return annasArchiveClient.fastDownload(md5, 0, domainIndex)
                 .map(response -> {
                     response.ensureHasUrl();
                     return response.downloadUrl();
                 });
     }
-
-    // The WebClient request timeout bounds the whole transfer and releases the AsyncFile; the
-    // body is streamed straight to disk so a large file never buffers in memory.
+    
     public Uni<Long> streamToFile(String url, Path target) {
         String targetPath = target.toString();
         OpenOptions options = new OpenOptions().setCreate(true).setWrite(true).setTruncateExisting(true);
@@ -63,26 +56,24 @@ public class AnnaArchiveGateway {
     }
 
     private Uni<Long> download(String url, AsyncFile file, String targetPath) {
-        return webClient.getAbs(url)
-                .followRedirects(true)
-                .timeout(downloadTimeout.toMillis())
-                .as(BodyCodec.pipe(file))
-                .send()
-                .onItemOrFailure().transformToUni((response, failure) -> {
+        return annasArchiveClient.download(url)
+                .onItem().call(chunk -> file.write(Buffer.buffer(chunk)))
+                .onItem().ignoreAsUni()
+                .ifNoItem().after(downloadTimeout).fail()
+                .onItemOrFailure().transformToUni((ignored, failure) -> {
                     if (failure != null) {
-                        return file.close().onFailure().recoverWithItem((Void) null)
-                                .flatMap(ignored -> deleteQuietly(targetPath))
-                                .flatMap(ignored -> Uni.createFrom().failure(mapDownloadFailure(failure)));
+                        return closeQuietly(file)
+                                .flatMap(closed -> deleteQuietly(targetPath))
+                                .flatMap(deleted -> Uni.<Long>createFrom().failure(mapDownloadFailure(failure)));
                     }
-                    return handleResponse(response, targetPath);
+                    return file.close()
+                            .onFailure().transform(e ->
+                                    new AnnaArchiveException("could not close downloaded file: " + rootMessage(e)))
+                            .flatMap(closed -> verifySize(targetPath));
                 });
     }
 
-    private Uni<Long> handleResponse(HttpResponse<Void> response, String targetPath) {
-        if (response.statusCode() / 100 != 2) {
-            return deleteQuietly(targetPath).flatMap(ignored -> Uni.createFrom()
-                    .failure(new AnnaArchiveException("file download returned HTTP " + response.statusCode())));
-        }
+    private Uni<Long> verifySize(String targetPath) {
         return vertx.fileSystem().props(targetPath).flatMap(props -> {
             long written = props.size();
             if (written == 0) {
@@ -106,6 +97,10 @@ public class AnnaArchiveGateway {
             return Uni.createFrom().voidItem();
         }
         return vertx.fileSystem().mkdirs(parent.toString());
+    }
+
+    private Uni<Void> closeQuietly(AsyncFile file) {
+        return file.close().onFailure().recoverWithItem((Void) null);
     }
 
     private Uni<Void> deleteQuietly(String path) {

@@ -1,6 +1,8 @@
 package org.nana.annasarchive;
 
 import io.quarkus.rest.client.reactive.ClientQueryParam;
+import io.quarkus.rest.client.reactive.Url;
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -31,4 +33,8 @@ public interface AnnasArchiveClient {
             @QueryParam("lang") String language,
             @QueryParam("ext") String extension,
             @QueryParam("content") String content);
+
+    @GET
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    Multi<byte[]> download(@Url String url);
 }
