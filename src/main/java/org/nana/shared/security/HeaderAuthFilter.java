@@ -1,41 +1,39 @@
 package org.nana.shared.security;
 
 import jakarta.annotation.Priority;
-import jakarta.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.ext.Provider;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
-import java.util.Optional;
+import org.nana.shared.NanaConfiguration;
 
 @Provider
 @Priority(Priorities.AUTHENTICATION)
+@ApplicationScoped
 public class HeaderAuthFilter implements ContainerRequestFilter {
 
-    @Inject
-    CurrentUser currentUser;
+    private final CurrentUser currentUser;
+    private final NanaConfiguration config;
 
-    @ConfigProperty(name = "nana.auth.header-name")
-    String headerName;
-
-    @ConfigProperty(name = "nana.auth.fallback-username")
-    Optional<String> fallbackUsername;
+    public HeaderAuthFilter(CurrentUser currentUser, NanaConfiguration config) {
+        this.currentUser = currentUser;
+        this.config = config;
+    }
 
     @Override
     public void filter(ContainerRequestContext requestContext) {
         String path = "/" + stripLeadingSlashes(requestContext.getUriInfo().getPath());
-        
+
         if (!path.equals("/api") && !path.startsWith("/api/")) {
             return;
         }
-        
-        String username = blankToNull(requestContext.getHeaderString(headerName));
+
+        String username = blankToNull(requestContext.getHeaderString(config.auth().headerName()));
         if (username == null) {
-            username = fallbackUsername.map(HeaderAuthFilter::blankToNull).orElse(null);
+            username = config.auth().fallbackUsername().map(HeaderAuthFilter::blankToNull).orElse(null);
         }
-        
+
         currentUser.set(username);
     }
 

@@ -1,21 +1,23 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useQueryClient } from '@tanstack/vue-query'
-import { getListDownloadsQueryKey, useCreateDownload } from '../api/generated/nana'
+import { computed, ref } from 'vue'
+import { useCreateDownload } from '../api/generated/nana'
 import type { SearchResult } from '../api/generated/nana'
+import { useDownloadEvents } from '../composables/useDownloadEvents'
 import { formatBytes } from '../lib/format'
 
 const props = defineProps<{ book: SearchResult }>()
 
-const queryClient = useQueryClient()
+const { downloads } = useDownloadEvents()
 const queued = ref(false)
 const errorMessage = ref('')
+
+const event = computed(() => (props.book.md5 ? downloads.get(props.book.md5) : undefined))
+const status = computed(() => event.value?.status)
 
 const { mutate, isPending } = useCreateDownload<Error>({
   mutation: {
     onSuccess: () => {
       queued.value = true
-      queryClient.invalidateQueries({ queryKey: getListDownloadsQueryKey() })
     },
     onError: (error) => {
       errorMessage.value = error.message
@@ -23,11 +25,38 @@ const { mutate, isPending } = useCreateDownload<Error>({
   },
 })
 
+const busy = computed(() => {
+  if (isPending.value) return true
+  if (status.value === 'FAILED') return false
+  if (status.value) return true // PENDING / DOWNLOADING / SUCCESS
+  return queued.value
+})
+
+const label = computed(() => {
+  if (isPending.value) return 'Queuing…'
+  switch (status.value) {
+    case 'PENDING':
+      return 'Queued ✓'
+    case 'DOWNLOADING':
+      return 'Downloading…'
+    case 'SUCCESS':
+      return 'Success ✓'
+    case 'FAILED':
+      return 'Retry'
+  }
+  return queued.value ? 'Queued ✓' : 'Download'
+})
+
+const failureMessage = computed(
+  () => errorMessage.value || (status.value === 'FAILED' ? event.value?.errorMessage ?? '' : ''),
+)
+
 function download() {
   if (!props.book.md5 || !props.book.title) {
     return
   }
   errorMessage.value = ''
+  queued.value = false
   mutate({
     data: {
       md5: props.book.md5,
@@ -61,13 +90,13 @@ function download() {
       <div class="mt-auto flex min-w-0 items-center gap-2 pt-2">
         <button
           type="button"
-          :disabled="isPending || queued"
+          :disabled="busy"
           class="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
           @click="download"
         >
-          {{ queued ? 'Queued ✓' : isPending ? 'Queuing…' : 'Download' }}
+          {{ label }}
         </button>
-        <span v-if="errorMessage" class="truncate text-xs text-red-600" :title="errorMessage">{{ errorMessage }}</span>
+        <span v-if="failureMessage" class="truncate text-xs text-red-600" :title="failureMessage">{{ failureMessage }}</span>
       </div>
     </div>
   </li>

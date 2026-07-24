@@ -37,11 +37,11 @@ public class DownloadStateStore {
     }
 
     @WithTransaction
-    public Uni<DownloadJob> markDownloading(long id) {
+    public Uni<DownloadDto> markDownloading(long id) {
         return require(id).map(download -> {
             download.status = DownloadStatus.DOWNLOADING;
             download.startedAt = Instant.now();
-            return new DownloadJob(download.id, download.md5, download.title, download.extension);
+            return DownloadDto.of(download);
         });
     }
 

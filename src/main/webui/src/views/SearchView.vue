@@ -1,15 +1,12 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useSearchBooks } from '../api/generated/nana'
+import { useSearchState } from '../composables/useSearchState'
 import SearchBar from '../components/SearchBar.vue'
 import SearchFilters from '../components/SearchFilters.vue'
 import BookResultCard from '../components/BookResultCard.vue'
 
-const query = ref('')
-const lang = ref('')
-const ext = ref('')
-const content = ref('')
-const submitted = ref('')
+const { query, lang, ext, content, submitted, search } = useSearchState()
 
 const params = computed(() => ({
   q: submitted.value,
@@ -21,14 +18,10 @@ const params = computed(() => ({
 const enabled = computed(() => submitted.value.length > 0)
 
 const { data, isFetching, isError, error } = useSearchBooks(params, {
-  query: { enabled },
+  query: { enabled, staleTime: 1000 * 60 * 5, gcTime: 1000 * 60 * 30 },
 })
 
 const results = computed(() => data.value?.data ?? [])
-
-function search() {
-  submitted.value = query.value.trim()
-}
 </script>
 
 <template>

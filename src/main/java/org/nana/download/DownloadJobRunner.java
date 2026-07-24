@@ -21,13 +21,15 @@ public class DownloadJobRunner {
     private final AnnaArchiveGateway gateway;
     private final Signal<DownloadSucceeded> downloadSucceeded;
     private final Signal<DownloadFailed> downloadFailed;
+    private final Signal<DownloadDownloading> downloadDownloading;
     private final NanaConfiguration config;
 
-    public DownloadJobRunner(DownloadStateStore stateStore, AnnaArchiveGateway gateway, Signal<DownloadSucceeded> downloadSucceeded, Signal<DownloadFailed> downloadFailed, NanaConfiguration config) {
+    public DownloadJobRunner(DownloadStateStore stateStore, AnnaArchiveGateway gateway, Signal<DownloadSucceeded> downloadSucceeded, Signal<DownloadFailed> downloadFailed, Signal<DownloadDownloading> downloadDownloading, NanaConfiguration config) {
         this.stateStore = stateStore;
         this.gateway = gateway;
         this.downloadSucceeded = downloadSucceeded;
         this.downloadFailed = downloadFailed;
+        this.downloadDownloading = downloadDownloading;
         this.config = config;
     }
 
@@ -44,7 +46,9 @@ public class DownloadJobRunner {
 
     private Uni<Void> run(long downloadId) {
         return stateStore.markDownloading(downloadId)
-                .invoke(job -> Log.infof("Download %d started (md5 %s)", downloadId, job.md5()))
+                .invoke(dto -> downloadDownloading.publish(new DownloadDownloading(dto)))
+                .invoke(dto -> Log.infof("Download %d started (md5 %s)", downloadId, dto.md5()))
+                .map(dto -> new DownloadJob(dto.id(), dto.md5(), dto.title(), dto.extension()))
                 .flatMap(job -> attempt(downloadId, job, 0, "no download attempt was made"));
     }
 

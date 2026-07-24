@@ -7,14 +7,7 @@ const page = ref(0)
 const size = 20
 const params = computed(() => ({ page: page.value, size }))
 
-const { data, isLoading, isError, error } = useListDownloads(params, {
-  query: {
-    refetchInterval: (query) => {
-      const rows = query.state.data?.data.content ?? []
-      return rows.some((d) => d.status === 'PENDING' || d.status === 'DOWNLOADING') ? 3000 : false
-    },
-  },
-})
+const { data, isLoading, isError, error } = useListDownloads(params)
 
 const downloadPage = computed(() => data.value?.data)
 </script>

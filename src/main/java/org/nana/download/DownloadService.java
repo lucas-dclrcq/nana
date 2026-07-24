@@ -1,6 +1,7 @@
 package org.nana.download;
 
 import io.quarkus.logging.Log;
+import io.quarkus.signals.Signal;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.nana.shared.ApiDtos.DownloadDto;
@@ -16,10 +17,13 @@ public class DownloadService {
     
     private final DownloadStateStore stateStore;
     private final DownloadJobRunner jobRunner;
+    private final Signal<DownloadPending> downloadPending;
 
-    public DownloadService(DownloadStateStore stateStore, DownloadJobRunner jobRunner) {
+    public DownloadService(DownloadStateStore stateStore, DownloadJobRunner jobRunner,
+                           Signal<DownloadPending> downloadPending) {
         this.stateStore = stateStore;
         this.jobRunner = jobRunner;
+        this.downloadPending = downloadPending;
     }
 
     public Uni<DownloadDto> create(DownloadRequest request, String requestedBy) {
@@ -43,6 +47,7 @@ public class DownloadService {
                     .invoke(download -> {
                         Log.infof("Download %d requested by %s (md5 %s, title \"%s\")",
                                 download.id, requestedBy, md5, download.title);
+                        downloadPending.publish(new DownloadPending(DownloadDto.of(download)));
                         jobRunner.start(download.id);
                     })
                     .map(DownloadDto::of);

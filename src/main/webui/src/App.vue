@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
+import { useDownloadEvents } from './composables/useDownloadEvents'
+
+useDownloadEvents()
 </script>
 
 <template>

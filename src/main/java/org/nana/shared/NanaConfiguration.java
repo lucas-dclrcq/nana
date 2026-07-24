@@ -4,16 +4,23 @@ import io.smallrye.config.ConfigMapping;
 
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.Optional;
 
 @ConfigMapping(prefix = "nana")
 public interface NanaConfiguration {
+    Auth auth();
     AnnasArchive annasArchive();
     Download download();
     Webhook webhook();
-    
+
+    interface Auth {
+        String headerName();
+        Optional<String> fallbackUsername();
+    }
+
     interface AnnasArchive {
         String mirrorUrl();
-        String secretKey();
+        String secretKey(); 
         Long maxDomainIndex();
     }
     
@@ -24,6 +31,6 @@ public interface NanaConfiguration {
     
     interface Webhook {
         boolean enabled();
-        String url();
+        Optional<String> url();
     }
 }

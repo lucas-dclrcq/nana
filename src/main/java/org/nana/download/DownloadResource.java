@@ -1,5 +1,6 @@
 package org.nana.download;
 
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -18,6 +19,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.jboss.resteasy.reactive.ResponseStatus;
+import org.jboss.resteasy.reactive.RestStreamElementType;
 import org.nana.shared.ApiDtos.DownloadDto;
 import org.nana.shared.ApiDtos.DownloadPage;
 import org.nana.shared.ApiDtos.DownloadRequest;
@@ -31,10 +33,13 @@ public class DownloadResource {
 
     private final DownloadService downloadService;
     private final CurrentUser currentUser;
+    private final DownloadEventStream downloadEventStream;
 
-    public DownloadResource(DownloadService downloadService, CurrentUser currentUser) {
+    public DownloadResource(DownloadService downloadService, CurrentUser currentUser,
+                            DownloadEventStream downloadEventStream) {
         this.downloadService = downloadService;
         this.currentUser = currentUser;
+        this.downloadEventStream = downloadEventStream;
     }
 
     @POST
@@ -61,5 +66,16 @@ public class DownloadResource {
     @Operation(operationId = "getDownload", summary = "Get one download")
     public Uni<DownloadDto> get(@PathParam("id") long id) {
         return downloadService.get(id);
+    }
+
+    // Hidden from the OpenAPI schema so Orval does not generate an (unusable) query hook for it;
+    // the frontend consumes this with a native EventSource and the already-generated DownloadDto type.
+    @GET
+    @Path("/events")
+    @Produces(MediaType.SERVER_SENT_EVENTS)
+    @RestStreamElementType(MediaType.APPLICATION_JSON)
+    @Operation(hidden = true)
+    public Multi<DownloadDto> events() {
+        return downloadEventStream.stream();
     }
 }
