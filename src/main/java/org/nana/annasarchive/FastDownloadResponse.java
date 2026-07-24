@@ -8,4 +8,12 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record FastDownloadResponse(
         @JsonProperty("download_url") String downloadUrl,
-        @JsonProperty("error") String error) {}
+        @JsonProperty("error") String error) {
+    public void ensureHasUrl() {
+        if (downloadUrl == null || downloadUrl.isBlank()) {
+            throw new AnnaArchiveException(error != null && !error.isBlank()
+                    ? error
+                    : "no download URL returned");
+        }
+    }   
+}

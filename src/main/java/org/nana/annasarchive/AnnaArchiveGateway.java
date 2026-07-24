@@ -1,6 +1,5 @@
 package org.nana.annasarchive;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;
@@ -12,7 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.Duration;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -36,7 +34,9 @@ public class AnnaArchiveGateway {
             .build();
 
     public String resolveDownloadUrl(String md5, int domainIndex) {
-        return fastDownloadClient.fastDownload(md5, 0, domainIndex).downloadUrl();
+        FastDownloadResponse response = fastDownloadClient.fastDownload(md5, 0, domainIndex);
+        response.ensureHasUrl();
+        return response.downloadUrl();
     }
 
     // The JDK HTTP client has no body read timeout, so a stalled mirror would block the job
