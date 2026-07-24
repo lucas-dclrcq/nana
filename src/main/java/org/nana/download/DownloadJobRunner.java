@@ -1,17 +1,17 @@
 package org.nana.download;
 
 import io.quarkus.logging.Log;
+import io.quarkus.signals.Signal;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import java.nio.file.Path;
-import java.text.Normalizer;
-import java.util.Locale;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.nana.annasarchive.AnnaArchiveException;
 import org.nana.annasarchive.AnnaArchiveGateway;
-import org.nana.download.DownloadStateStore.DownloadJob;
-import org.nana.webhook.WebhookNotifier;
+
+import java.nio.file.Path;
+import java.text.Normalizer;
+import java.util.Locale;
 
 @ApplicationScoped
 public class DownloadJobRunner {
@@ -25,7 +25,10 @@ public class DownloadJobRunner {
     AnnaArchiveGateway gateway;
 
     @Inject
-    WebhookNotifier webhookNotifier;
+    Signal<DownloadSucceeded> downloadSucceeded;
+
+    @Inject
+    Signal<DownloadFailed> downloadFailed;
 
     @ConfigProperty(name = "nana.download.directory")
     Path downloadDirectory;
@@ -41,7 +44,7 @@ public class DownloadJobRunner {
                 error -> {
                     Log.errorf(error, "Download %d crashed", downloadId);
                     stateStore.markFailed(downloadId, "internal error: " + error.getMessage())
-                            .flatMap(webhookNotifier::downloadFailed)
+                            .invoke(result -> downloadFailed.publish(new DownloadFailed(result)))
                             .subscribe().with(ignored -> {}, ignored -> {
                                 // the download stays in its last persisted state; the crash is logged
                             });
@@ -58,7 +61,8 @@ public class DownloadJobRunner {
         if (domainIndex > maxDomainIndex) {
             return stateStore.markFailed(downloadId, lastError)
                     .invoke(result -> Log.errorf("Download %d failed: %s", downloadId, lastError))
-                    .flatMap(webhookNotifier::downloadFailed);
+                    .invoke(result -> downloadFailed.publish(new DownloadFailed(result)))
+                    .replaceWithVoid();
         }
         Path target = downloadDirectory.resolve(fileName(job));
         Path partFile = target.resolveSibling(target.getFileName() + ".part");
@@ -68,7 +72,8 @@ public class DownloadJobRunner {
                         return stateStore.markSuccess(downloadId, target.toString(), sizeBytes, domainIndex)
                                 .invoke(result -> Log.infof("Download %d succeeded: %s (%d bytes, domain index %d)",
                                         downloadId, target, sizeBytes, domainIndex))
-                                .flatMap(webhookNotifier::downloadSucceeded);
+                                .invoke(result -> downloadSucceeded.publish(new DownloadSucceeded(result)))
+                                .replaceWithVoid();
                     }
                     // only resolve/stream/move errors are retryable; a transport or DB error
                     // propagates to the crash handler exactly as the blocking version did

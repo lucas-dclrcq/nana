@@ -3,17 +3,18 @@ package org.nana.webhook;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
-import io.quarkus.runtime.annotations.RegisterForReflection;
+import io.quarkus.signals.Receives;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.buffer.Buffer;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import java.time.Instant;
-import java.util.Optional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.nana.api.ApiDtos.DownloadDto;
-import org.nana.download.DownloadStatus;
+import org.nana.download.DownloadFailed;
+import org.nana.download.DownloadSucceeded;
+import org.nana.shared.ApiDtos.DownloadDto;
+
+import java.util.Optional;
 
 @ApplicationScoped
 public class WebhookNotifier {
@@ -30,29 +31,12 @@ public class WebhookNotifier {
     @Inject
     WebClient webClient;
 
-    @RegisterForReflection
-    public record WebhookPayload(String event, WebhookDownload download) {}
-
-    @RegisterForReflection
-    public record WebhookDownload(
-            Long id,
-            String md5,
-            String title,
-            String extension,
-            String requestedBy,
-            DownloadStatus status,
-            String filePath,
-            Long sizeBytes,
-            String errorMessage,
-            Instant requestedAt,
-            Instant finishedAt) {}
-
-    public Uni<Void> downloadSucceeded(DownloadDto download) {
-        return send("download.succeeded", download);
+    Uni<Void> onDownloadSucceeded(@Receives DownloadSucceeded event) {
+        return send("download.succeeded", event.download());
     }
 
-    public Uni<Void> downloadFailed(DownloadDto download) {
-        return send("download.failed", download);
+    Uni<Void> onDownloadFailed(@Receives DownloadFailed event) {
+        return send("download.failed", event.download());
     }
 
     private Uni<Void> send(String event, DownloadDto download) {
@@ -84,7 +68,6 @@ public class WebhookNotifier {
                     }
                 })
                 .replaceWithVoid()
-                // a webhook failure must never affect the download outcome
                 .onFailure().invoke(e -> Log.warnf(e, "Webhook %s for download %d failed", event, download.id()))
                 .onFailure().recoverWithItem((Void) null);
     }

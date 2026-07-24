@@ -3,23 +3,24 @@ package org.nana.download;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
+import org.nana.shared.ApiDtos.DownloadDto;
+import org.nana.shared.ApiDtos.DownloadPage;
+import org.nana.shared.ApiDtos.DownloadRequest;
+import org.nana.shared.ApiException;
+
 import java.util.Locale;
-import org.nana.api.ApiDtos.DownloadDto;
-import org.nana.api.ApiDtos.DownloadPage;
-import org.nana.api.ApiDtos.DownloadRequest;
-import org.nana.api.ApiException;
 
 @ApplicationScoped
 public class DownloadService {
-
-    @Inject
-    DownloadStateStore stateStore;
-
-    @Inject
-    DownloadJobRunner jobRunner;
-
     private static final String ACTIVE_MD5_INDEX = "download_active_md5_idx";
+    
+    private final DownloadStateStore stateStore;
+    private final DownloadJobRunner jobRunner;
+
+    public DownloadService(DownloadStateStore stateStore, DownloadJobRunner jobRunner) {
+        this.stateStore = stateStore;
+        this.jobRunner = jobRunner;
+    }
 
     public Uni<DownloadDto> create(DownloadRequest request, String requestedBy) {
         String md5 = request.md5().toLowerCase(Locale.ROOT);

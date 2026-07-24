@@ -1,4 +1,4 @@
-package org.nana.api;
+package org.nana.shared;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import jakarta.validation.constraints.NotBlank;

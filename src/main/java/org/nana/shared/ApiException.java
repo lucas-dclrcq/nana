@@ -1,4 +1,4 @@
-package org.nana.api;
+package org.nana.shared;
 
 public class ApiException extends RuntimeException {
 

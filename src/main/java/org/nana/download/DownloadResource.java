@@ -18,10 +18,10 @@ import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.jboss.resteasy.reactive.ResponseStatus;
-import org.nana.api.ApiDtos.DownloadDto;
-import org.nana.api.ApiDtos.DownloadPage;
-import org.nana.api.ApiDtos.DownloadRequest;
-import org.nana.api.security.CurrentUser;
+import org.nana.shared.ApiDtos.DownloadDto;
+import org.nana.shared.ApiDtos.DownloadPage;
+import org.nana.shared.ApiDtos.DownloadRequest;
+import org.nana.shared.security.CurrentUser;
 
 @Path("/api/downloads")
 @Produces(MediaType.APPLICATION_JSON)
@@ -29,11 +29,13 @@ public class DownloadResource {
 
     private static final int MAX_PAGE_SIZE = 100;
 
-    @Inject
-    DownloadService downloadService;
+    private final DownloadService downloadService;
+    private final CurrentUser currentUser;
 
-    @Inject
-    CurrentUser currentUser;
+    public DownloadResource(DownloadService downloadService, CurrentUser currentUser) {
+        this.downloadService = downloadService;
+        this.currentUser = currentUser;
+    }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)

@@ -5,23 +5,24 @@ import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
 import io.smallrye.mutiny.Uni;
 import jakarta.data.page.PageRequest;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
+import org.nana.shared.ApiDtos.DownloadDto;
+import org.nana.shared.ApiDtos.DownloadPage;
+import org.nana.shared.ApiException;
+
 import java.time.Instant;
 import java.util.Locale;
-import org.nana.api.ApiDtos.DownloadDto;
-import org.nana.api.ApiDtos.DownloadPage;
-import org.nana.api.ApiException;
 
 @ApplicationScoped
 public class DownloadStateStore {
 
     private static final int ERROR_MESSAGE_MAX_LENGTH = 2000;
 
-    @Inject
-    DownloadRepository repository;
-
-    public record DownloadJob(long id, String md5, String title, String extension) {}
-
+    private final DownloadRepository repository;
+    
+    DownloadStateStore(DownloadRepository repository) {
+        this.repository = repository;
+    }
+    
     @WithTransaction
     public Uni<Download> createPending(String md5, String title, String author, String extension, String requestedBy) {
         Download download = new Download();

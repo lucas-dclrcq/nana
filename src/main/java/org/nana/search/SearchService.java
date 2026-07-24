@@ -2,21 +2,23 @@ package org.nana.search;
 
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import java.util.List;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.nana.annasarchive.AnnaArchiveHtmlParser;
 import org.nana.annasarchive.AnnasArchiveClient;
 import org.nana.annasarchive.SearchHit;
-import org.nana.api.ApiDtos.SearchResult;
-import org.nana.api.ApiException;
+import org.nana.shared.ApiDtos.SearchResult;
+import org.nana.shared.ApiException;
+
+import java.util.List;
 
 @ApplicationScoped
 public class SearchService {
 
-    @Inject
-    @RestClient
-    AnnasArchiveClient searchClient;
+    private final AnnasArchiveClient searchClient;
+
+    public SearchService(@RestClient AnnasArchiveClient searchClient) {
+        this.searchClient = searchClient;
+    }
 
     public Uni<List<SearchResult>> search(String query, String language, String extension, String content) {
         return searchClient.search(

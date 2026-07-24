@@ -1,4 +1,4 @@
-package org.nana.api;
+package org.nana.shared;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;

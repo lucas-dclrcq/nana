@@ -1,4 +1,4 @@
-package org.nana.api.security;
+package org.nana.shared.security;
 
 import jakarta.enterprise.context.RequestScoped;
 

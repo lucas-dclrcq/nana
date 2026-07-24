@@ -19,16 +19,15 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 @ApplicationScoped
 public class DownloadRecovery {
 
-    @Inject
-    DownloadRepository repository;
+    private final DownloadRepository repository;
+    private final DownloadRecovery self;
+    private final Path downloadDirectory;
 
-    // Injected through the client proxy so the @WithTransaction interceptor fires: a self
-    // invocation from onStart would bypass it.
-    @Inject
-    DownloadRecovery self;
-
-    @ConfigProperty(name = "nana.download.directory")
-    Path downloadDirectory;
+    public DownloadRecovery(DownloadRepository repository, DownloadRecovery self, @ConfigProperty(name = "nana.download.directory") Path downloadDirectory) {
+        this.repository = repository;
+        this.self = self;
+        this.downloadDirectory = downloadDirectory;
+    }
 
     void onStart(@Observes StartupEvent event) {
         try {

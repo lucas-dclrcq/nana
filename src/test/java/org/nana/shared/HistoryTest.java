@@ -1,4 +1,4 @@
-package org.nana.api;
+package org.nana.shared;
 
 import static io.restassured.RestAssured.given;
 
