@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.4.0](https://github.com/lucas-dclrcq/nana/compare/v0.3.0...v0.4.0) (2026-07-25)
+
+
+### Features
+
+* add configuration of allowed formats ([685ff2c](https://github.com/lucas-dclrcq/nana/commit/685ff2c4b4f04de2e0e93f26fadf09202f339923))
+
+
+### Bug Fixes
+
+* add missing dependency for quarkus reactive data ([19db353](https://github.com/lucas-dclrcq/nana/commit/19db353d8e3e6d3ea22fd42561d5739335ebd1c4))
+
 ## [0.3.0](https://github.com/lucas-dclrcq/nana/compare/v0.2.0...v0.3.0) (2026-07-25)
 
 
