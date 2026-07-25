@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/lucas-dclrcq/nana/compare/v0.2.0...v0.3.0) (2026-07-25)
+
+
+### Features
+
+* **config:** simplyfy db url to avoid having to setup two url (blocking / reactive) ([dcd7f66](https://github.com/lucas-dclrcq/nana/commit/dcd7f66c229c2041fb5bc1cfcd093701a65ff56d))
+
 ## [0.2.0](https://github.com/lucas-dclrcq/nana/compare/v0.1.0...v0.2.0) (2026-07-25)
 
 
