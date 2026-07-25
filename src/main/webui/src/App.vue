@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useDownloadEvents } from './composables/useDownloadEvents'
+import LanguageSwitcher from './components/LanguageSwitcher.vue'
+
+const { t } = useI18n()
 
 useDownloadEvents()
 </script>
@@ -18,15 +22,16 @@ useDownloadEvents()
           class="text-sm font-semibold uppercase tracking-wide text-pop-ink/70 hover:text-pop-ink"
           exact-active-class="!text-pop-ink border-b-2 border-pop-pink"
         >
-          Search
+          {{ t('nav.search') }}
         </RouterLink>
         <RouterLink
           to="/history"
           class="text-sm font-semibold uppercase tracking-wide text-pop-ink/70 hover:text-pop-ink"
           active-class="!text-pop-ink border-b-2 border-pop-pink"
         >
-          History
+          {{ t('nav.history') }}
         </RouterLink>
+        <LanguageSwitcher class="ml-auto" />
       </nav>
     </header>
     <main class="mx-auto max-w-5xl px-4 py-6">

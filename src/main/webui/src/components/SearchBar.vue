@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+
 const query = defineModel<string>({ required: true })
 const emit = defineEmits<{ search: [] }>()
 </script>
@@ -8,7 +12,7 @@ const emit = defineEmits<{ search: [] }>()
     <input
       v-model="query"
       type="search"
-      placeholder="Search books, authors, ISBN…"
+      :placeholder="t('search.placeholder')"
       class="pop-input w-full px-4 py-2 text-sm"
     />
     <button
@@ -16,7 +20,7 @@ const emit = defineEmits<{ search: [] }>()
       :disabled="!query.trim()"
       class="pop-btn px-4 py-2 text-sm"
     >
-      Search
+      {{ t('search.submit') }}
     </button>
   </form>
 </template>
