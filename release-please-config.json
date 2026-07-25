@@ -1,0 +1,11 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "packages": {
+    ".": {
+      "release-type": "maven",
+      "extra-files": [
+        { "type": "json", "path": "src/main/webui/package.json", "jsonpath": "$.version" }
+      ]
+    }
+  }
+}

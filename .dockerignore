@@ -1,4 +1,5 @@
-target/
+target/*
+!target/*-runner
 src/main/webui/node_modules/
 src/main/webui/dist/
 .git/

@@ -1,0 +1,11 @@
+# syntax=docker/dockerfile:1
+## Single-stage: packages a native binary already built by `./mvnw package -Dnative`.
+FROM quay.io/quarkus/ubi9-quarkus-micro-image:2.0
+WORKDIR /work/
+COPY --chown=0:0 --chmod=0555 target/*-runner /work/application
+
+ENV HOME=/tmp
+EXPOSE 8080
+USER 1001
+
+ENTRYPOINT ["./application", "-Dquarkus.http.host=0.0.0.0", "-Dvertx.cacheDirBase=/tmp/vertx-cache"]
