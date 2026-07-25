@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useCreateDownload } from '../api/generated/nana'
 import type { SearchResult } from '../api/generated/nana'
 import { useDownloadEvents } from '../composables/useDownloadEvents'
 import { formatBytes } from '../lib/format'
+
+const { t } = useI18n()
 
 const props = defineProps<{ book: SearchResult }>()
 
@@ -33,18 +36,18 @@ const busy = computed(() => {
 })
 
 const label = computed(() => {
-  if (isPending.value) return 'Queuing…'
+  if (isPending.value) return t('card.queuing')
   switch (status.value) {
     case 'PENDING':
-      return 'Queued ✓'
+      return t('card.queued')
     case 'DOWNLOADING':
-      return 'Downloading…'
+      return t('card.downloading')
     case 'SUCCESS':
-      return 'Success ✓'
+      return t('card.success')
     case 'FAILED':
-      return 'Retry'
+      return t('card.retry')
   }
-  return queued.value ? 'Queued ✓' : 'Download'
+  return queued.value ? t('card.queued') : t('card.download')
 })
 
 const failureMessage = computed(

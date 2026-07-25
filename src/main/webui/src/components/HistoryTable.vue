@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import type { DownloadPage } from '../api/generated/nana'
 import StatusBadge from './StatusBadge.vue'
 import { formatBytes, formatDateTime } from '../lib/format'
+
+const { t } = useI18n()
 
 const props = defineProps<{ page: DownloadPage }>()
 const emit = defineEmits<{ previous: []; next: [] }>()
@@ -16,12 +19,12 @@ const totalPages = () => Math.max(props.page.totalPages ?? 1, 1)
       <table class="w-full text-left text-sm">
         <thead class="bg-pop-ink text-xs font-display uppercase tracking-wide text-white">
           <tr>
-            <th class="px-4 py-2">Book</th>
-            <th class="px-4 py-2">Status</th>
-            <th class="px-4 py-2">Size</th>
-            <th class="px-4 py-2">Requested by</th>
-            <th class="px-4 py-2">Requested at</th>
-            <th class="px-4 py-2">Details</th>
+            <th class="px-4 py-2">{{ t('history.columns.book') }}</th>
+            <th class="px-4 py-2">{{ t('history.columns.status') }}</th>
+            <th class="px-4 py-2">{{ t('history.columns.size') }}</th>
+            <th class="px-4 py-2">{{ t('history.columns.requestedBy') }}</th>
+            <th class="px-4 py-2">{{ t('history.columns.requestedAt') }}</th>
+            <th class="px-4 py-2">{{ t('history.columns.details') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -44,14 +47,14 @@ const totalPages = () => Math.max(props.page.totalPages ?? 1, 1)
             </td>
           </tr>
           <tr v-if="!page.content || page.content.length === 0">
-            <td colspan="6" class="px-4 py-6 text-center font-display text-sm uppercase tracking-wide text-pop-ink">No downloads yet.</td>
+            <td colspan="6" class="px-4 py-6 text-center font-display text-sm uppercase tracking-wide text-pop-ink">{{ t('history.empty') }}</td>
           </tr>
         </tbody>
       </table>
     </div>
     <div class="flex items-center justify-between border-t-2 border-pop-ink px-4 py-2 text-sm">
       <span class="font-semibold text-pop-ink/70">
-        Page {{ currentPage() + 1 }} of {{ totalPages() }} · {{ page.totalElements ?? 0 }} download(s)
+        {{ t('history.pageInfo', { current: currentPage() + 1, total: totalPages(), count: page.totalElements ?? 0 }, page.totalElements ?? 0) }}
       </span>
       <div class="flex gap-2">
         <button
@@ -60,7 +63,7 @@ const totalPages = () => Math.max(props.page.totalPages ?? 1, 1)
           class="pop-btn-outline px-3 py-1 text-xs"
           @click="emit('previous')"
         >
-          Previous
+          {{ t('history.prev') }}
         </button>
         <button
           type="button"
@@ -68,7 +71,7 @@ const totalPages = () => Math.max(props.page.totalPages ?? 1, 1)
           class="pop-btn-outline px-3 py-1 text-xs"
           @click="emit('next')"
         >
-          Next
+          {{ t('history.next') }}
         </button>
       </div>
     </div>

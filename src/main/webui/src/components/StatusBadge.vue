@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import type { DownloadStatus } from '../api/generated/nana'
+
+const { t } = useI18n()
 
 const props = defineProps<{ status?: DownloadStatus }>()
 
@@ -16,6 +19,6 @@ const STYLES: Record<string, string> = {
     class="pop-badge"
     :class="STYLES[props.status ?? ''] ?? 'bg-pop-yellow text-pop-ink'"
   >
-    {{ props.status ?? '—' }}
+    {{ props.status ? t(`status.${props.status}`) : '—' }}
   </span>
 </template>
