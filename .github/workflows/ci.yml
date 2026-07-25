@@ -33,5 +33,5 @@ jobs:
       - name: Verify native + build image — push to main
         if: github.event_name == 'push'
         run: |
-          ./mvnw -B verify -Dnative \
+          ./mvnw -B verify -Dnative
           docker build -f src/main/docker/Dockerfile.native -t nana:${{ github.sha }} .
