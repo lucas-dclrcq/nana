@@ -34,6 +34,4 @@ jobs:
         if: github.event_name == 'push'
         run: |
           ./mvnw -B verify -Dnative \
-            -Dquarkus.native.container-build=true \
-            -Dquarkus.native.builder-image=quay.io/quarkus/ubi9-quarkus-mandrel-builder-image:jdk-21
           docker build -f src/main/docker/Dockerfile.native -t nana:${{ github.sha }} .
