@@ -21,7 +21,7 @@
         <jsoup.version>1.22.2</jsoup.version>
         <wiremock.version>3.13.2</wiremock.version>
 
-        <surefire-plugin.version>3.5.4</surefire-plugin.version>
+        <surefire-plugin.version>3.5.6</surefire-plugin.version>
         <compiler-plugin.version>3.15.0</compiler-plugin.version>
         <skipITs>true</skipITs>
     </properties>
