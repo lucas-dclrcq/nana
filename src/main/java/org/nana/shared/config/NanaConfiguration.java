@@ -1,4 +1,4 @@
-package org.nana.shared;
+package org.nana.shared.config;
 
 import io.smallrye.config.ConfigMapping;
 

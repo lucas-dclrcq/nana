@@ -6,7 +6,7 @@ import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.ext.Provider;
-import org.nana.shared.NanaConfiguration;
+import org.nana.shared.config.NanaConfiguration;
 
 @Provider
 @Priority(Priorities.AUTHENTICATION)

@@ -8,7 +8,7 @@ import io.vertx.mutiny.core.buffer.Buffer;
 import io.vertx.mutiny.core.file.AsyncFile;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.nana.shared.NanaConfiguration;
+import org.nana.shared.config.NanaConfiguration;
 
 import java.nio.file.Path;
 import java.util.concurrent.TimeoutException;

@@ -6,7 +6,7 @@ import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.nana.annasarchive.AnnaArchiveException;
 import org.nana.annasarchive.AnnaArchiveGateway;
-import org.nana.shared.NanaConfiguration;
+import org.nana.shared.config.NanaConfiguration;
 
 import java.nio.file.Path;
 import java.text.Normalizer;

@@ -7,7 +7,7 @@ import io.quarkus.vertx.VertxContextSupport;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
-import org.nana.shared.NanaConfiguration;
+import org.nana.shared.config.NanaConfiguration;
 
 import java.io.IOException;
 import java.nio.file.Files;
