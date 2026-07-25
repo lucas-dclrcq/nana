@@ -70,6 +70,8 @@ public final class ApiDtos {
             int page,
             int size) {}
 
+    public record ConfigDto(List<String> allowedFormats) {}
+
     // Serialized only through Response entities (auth filter, exception mapper), which
     // build-time analysis cannot see; without this the native image 500s instead of 401/404.
     @RegisterForReflection

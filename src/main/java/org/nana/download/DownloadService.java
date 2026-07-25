@@ -8,25 +8,32 @@ import org.nana.shared.ApiDtos.DownloadDto;
 import org.nana.shared.ApiDtos.DownloadPage;
 import org.nana.shared.ApiDtos.DownloadRequest;
 import org.nana.shared.ApiException;
+import org.nana.shared.config.FormatPolicy;
 
 import java.util.Locale;
 
 @ApplicationScoped
 public class DownloadService {
     private static final String ACTIVE_MD5_INDEX = "download_active_md5_idx";
-    
+
     private final DownloadStateStore stateStore;
     private final DownloadJobRunner jobRunner;
     private final Signal<DownloadPending> downloadPending;
+    private final FormatPolicy formatPolicy;
 
     public DownloadService(DownloadStateStore stateStore, DownloadJobRunner jobRunner,
-                           Signal<DownloadPending> downloadPending) {
+                           Signal<DownloadPending> downloadPending, FormatPolicy formatPolicy) {
         this.stateStore = stateStore;
         this.jobRunner = jobRunner;
         this.downloadPending = downloadPending;
+        this.formatPolicy = formatPolicy;
     }
 
     public Uni<DownloadDto> create(DownloadRequest request, String requestedBy) {
+        if (!formatPolicy.isAllowed(request.extension())) {
+            return Uni.createFrom().failure(ApiException.badRequest(
+                    "Format not allowed. Allowed formats: " + String.join(", ", formatPolicy.allowedFormats())));
+        }
         String md5 = request.md5().toLowerCase(Locale.ROOT);
         return stateStore.activeExists(md5).flatMap(exists -> {
             if (exists) {

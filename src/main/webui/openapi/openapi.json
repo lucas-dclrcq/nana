@@ -2,6 +2,17 @@
   "openapi" : "3.1.0",
   "components" : {
     "schemas" : {
+      "ConfigDto" : {
+        "type" : "object",
+        "properties" : {
+          "allowedFormats" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
       "DownloadDto" : {
         "type" : "object",
         "properties" : {
@@ -142,6 +153,25 @@
     }
   },
   "paths" : {
+    "/api/config" : {
+      "get" : {
+        "summary" : "Expose server configuration to the UI",
+        "operationId" : "getConfig",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ConfigDto"
+                }
+              }
+            }
+          }
+        },
+        "tags" : [ "Config Resource" ]
+      }
+    },
     "/api/downloads" : {
       "get" : {
         "summary" : "List downloads, most recent first",
@@ -286,7 +316,7 @@
   },
   "info" : {
     "title" : "nana API",
-    "version" : "0.1.0"
+    "version" : "0.2.1-SNAPSHOT"
   },
   "servers" : [ {
     "url" : "http://localhost:8080",

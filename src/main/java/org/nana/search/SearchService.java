@@ -8,6 +8,7 @@ import org.nana.annasarchive.AnnasArchiveClient;
 import org.nana.annasarchive.SearchHit;
 import org.nana.shared.ApiDtos.SearchResult;
 import org.nana.shared.ApiException;
+import org.nana.shared.config.FormatPolicy;
 
 import java.util.List;
 
@@ -15,9 +16,11 @@ import java.util.List;
 public class SearchService {
 
     private final AnnasArchiveClient searchClient;
+    private final FormatPolicy formatPolicy;
 
-    public SearchService(@RestClient AnnasArchiveClient searchClient) {
+    public SearchService(@RestClient AnnasArchiveClient searchClient, FormatPolicy formatPolicy) {
         this.searchClient = searchClient;
+        this.formatPolicy = formatPolicy;
     }
 
     public Uni<List<SearchResult>> search(String query, String language, String extension, String content) {
@@ -27,7 +30,10 @@ public class SearchService {
                         blankToNull(extension),
                         blankToNull(content))
                 .onFailure().transform(e -> ApiException.badGateway("Anna's Archive search failed"))
-                .map(html -> AnnaArchiveHtmlParser.parse(html).stream().map(SearchService::toDto).toList());
+                .map(html -> AnnaArchiveHtmlParser.parse(html).stream()
+                        .filter(hit -> formatPolicy.isAllowed(hit.extension()))
+                        .map(SearchService::toDto)
+                        .toList());
     }
 
     private static SearchResult toDto(SearchHit hit) {
