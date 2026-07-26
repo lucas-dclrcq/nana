@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.5.0](https://github.com/lucas-dclrcq/nana/compare/v0.4.0...v0.5.0) (2026-07-26)
+
+
+### Features
+
+* show fast download quota ([dc1a82b](https://github.com/lucas-dclrcq/nana/commit/dc1a82b1d46501b36dd5192d3d82da55660c930b))
+
+
+### Bug Fixes
+
+* **deps:** update dependency vue-router to v5 ([a7211ce](https://github.com/lucas-dclrcq/nana/commit/a7211ceba68b016f076675e21ce0c052e81c98a2))
+* search should work without a secret key ([9f8e0df](https://github.com/lucas-dclrcq/nana/commit/9f8e0df1898dd018f58cacefe96572f2d719692d))
+
 ## [0.4.0](https://github.com/lucas-dclrcq/nana/compare/v0.3.0...v0.4.0) (2026-07-25)
 
 
