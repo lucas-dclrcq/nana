@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.nana.testsupport.WireMockResource;
 
 @QuarkusTest
-@QuarkusTestResource(WireMockResource.class)
+@QuarkusTestResource(value = WireMockResource.class, restrictToAnnotatedClass = true)
 @TestProfile(WebhookTest.WebhookEnabledProfile.class)
 class WebhookTest {
 

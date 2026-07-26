@@ -30,7 +30,11 @@ jobs:
         if: github.event_name == 'pull_request'
         run: ./mvnw -B verify
 
-      - name: Verify native + build image — push to main
+      - name: Install Playwright Chromium — push to main
+        if: github.event_name == 'push'
+        run: ./mvnw -B -q test-compile exec:java -Dexec.classpathScope=test -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install --with-deps chromium"
+
+      - name: Verify native (+ container image, runs E2E IT) + build image — push to main
         if: github.event_name == 'push'
         run: |
           ./mvnw -B verify -Dnative

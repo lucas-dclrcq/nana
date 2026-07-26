@@ -249,7 +249,7 @@ paths:
       - Search Resource
 info:
   title: nana API
-  version: 0.3.1-SNAPSHOT
+  version: 0.4.1-SNAPSHOT
 servers:
 - url: http://localhost:8080
   description: Auto generated value

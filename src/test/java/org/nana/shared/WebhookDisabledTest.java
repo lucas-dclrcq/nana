@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.nana.testsupport.WireMockResource;
 
 @QuarkusTest
-@QuarkusTestResource(WireMockResource.class)
+@QuarkusTestResource(value = WireMockResource.class, restrictToAnnotatedClass = true)
 class WebhookDisabledTest {
 
     private static final Header AUTH = new Header("X-Authentik-Username", "lucas");

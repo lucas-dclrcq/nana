@@ -14,7 +14,7 @@ import org.nana.testsupport.TestDataSupport;
 import org.nana.testsupport.WireMockResource;
 
 @QuarkusTest
-@QuarkusTestResource(WireMockResource.class)
+@QuarkusTestResource(value = WireMockResource.class, restrictToAnnotatedClass = true)
 class HistoryTest {
 
     private static final Header AUTH = new Header("X-Authentik-Username", "lucas");
