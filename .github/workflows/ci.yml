@@ -34,8 +34,6 @@ jobs:
         if: github.event_name == 'push'
         run: ./mvnw -B -q test-compile exec:java -Dexec.classpathScope=test -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install --with-deps chromium"
 
-      - name: Verify native (+ container image, runs E2E IT) + build image — push to main
+      - name: Verify native (+ container image via quarkus-container-image-docker, runs E2E IT) — push to main
         if: github.event_name == 'push'
-        run: |
-          ./mvnw -B verify -Dnative
-          docker build -f src/main/docker/Dockerfile.native -t nana:${{ github.sha }} .
+        run: ./mvnw -B verify -Dnative
