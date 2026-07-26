@@ -28,7 +28,7 @@ public interface NanaConfiguration {
 
     interface AnnasArchive {
         String mirrorUrl();
-        String secretKey(); 
+        Optional<String> secretKey();
         Long maxDomainIndex();
     }
     
