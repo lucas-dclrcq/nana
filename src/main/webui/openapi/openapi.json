@@ -114,6 +114,22 @@
         "type" : "string",
         "enum" : [ "PENDING", "DOWNLOADING", "SUCCESS", "FAILED" ]
       },
+      "FastDownloadQuotaDto" : {
+        "type" : "object",
+        "properties" : {
+          "remaining" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "total" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "updatedAt" : {
+            "$ref" : "#/components/schemas/Instant"
+          }
+        }
+      },
       "Instant" : {
         "type" : "string",
         "format" : "date-time",
@@ -264,6 +280,25 @@
           }
         },
         "tags" : [ "Download Resource" ]
+      }
+    },
+    "/api/quota" : {
+      "get" : {
+        "summary" : "Last known Anna's Archive fast download quota",
+        "operationId" : "getFastDownloadQuota",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FastDownloadQuotaDto"
+                }
+              }
+            }
+          }
+        },
+        "tags" : [ "Fast Download Quota Resource" ]
       }
     },
     "/api/search" : {

@@ -1,5 +1,6 @@
 package org.nana.testsupport;
 
+import io.quarkus.hibernate.reactive.panache.common.WithSession;
 import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
 import io.quarkus.vertx.VertxContextSupport;
 import io.smallrye.mutiny.Uni;
@@ -7,6 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.time.Instant;
 import java.util.function.Supplier;
+import org.nana.annasarchive.FastDownloadQuotaRepository;
 import org.nana.download.DownloadRepository;
 import org.nana.download.DownloadStateStore;
 
@@ -17,15 +19,20 @@ public class TestDataSupport {
     DownloadRepository repository;
 
     @Inject
+    FastDownloadQuotaRepository quotaRepository;
+
+    @Inject
     DownloadStateStore stateStore;
 
-    // Injected through the client proxy so the @WithTransaction interceptor fires on these
-    // self-owned reactive helpers.
     @Inject
     TestDataSupport self;
 
     public void deleteAll() {
         await(() -> self.deleteAllReactive());
+    }
+
+    public long quotaCount() {
+        return await(() -> self.quotaCountReactive());
     }
 
     public long createPending(String md5, String title, String author, String extension, String requestedBy) {
@@ -38,7 +45,12 @@ public class TestDataSupport {
 
     @WithTransaction
     public Uni<Void> deleteAllReactive() {
-        return repository.deleteAll().replaceWithVoid();
+        return repository.deleteAll().flatMap(ignored -> quotaRepository.deleteAll()).replaceWithVoid();
+    }
+
+    @WithSession
+    public Uni<Long> quotaCountReactive() {
+        return quotaRepository.count();
     }
 
     @WithTransaction

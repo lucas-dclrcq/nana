@@ -1,6 +1,6 @@
 import { reactive } from 'vue'
 import { useQueryClient, type QueryClient } from '@tanstack/vue-query'
-import { getListDownloadsQueryKey } from '../api/generated/nana'
+import { getGetFastDownloadQuotaQueryKey, getListDownloadsQueryKey } from '../api/generated/nana'
 import type { DownloadDto, listDownloadsResponse } from '../api/generated/nana'
 
 const downloads = reactive(new Map<string, DownloadDto>())
@@ -33,6 +33,11 @@ function start(queryClient: QueryClient) {
     if (dl.status === 'PENDING') {
       queryClient.invalidateQueries({ queryKey: getListDownloadsQueryKey() })
       return
+    }
+
+    // A completed fast download consumed part of the Anna's Archive quota; refresh the badge.
+    if (dl.status === 'SUCCESS') {
+      queryClient.invalidateQueries({ queryKey: getGetFastDownloadQuotaQueryKey() })
     }
 
     queryClient.setQueriesData<listDownloadsResponse>({ queryKey: getListDownloadsQueryKey() }, (old) => {

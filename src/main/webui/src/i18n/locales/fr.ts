@@ -69,4 +69,7 @@ export default {
     SUCCESS: 'Réussi',
     FAILED: 'Échec',
   },
+  quota: {
+    tooltip: '{remaining} sur {total} téléchargements rapides restants · mis à jour {time}',
+  },
 }

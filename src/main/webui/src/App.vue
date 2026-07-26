@@ -2,6 +2,7 @@
 import { RouterLink, RouterView } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useDownloadEvents } from './composables/useDownloadEvents'
+import FastDownloadQuota from './components/FastDownloadQuota.vue'
 import LanguageSwitcher from './components/LanguageSwitcher.vue'
 
 const { t } = useI18n()
@@ -31,7 +32,10 @@ useDownloadEvents()
         >
           {{ t('nav.history') }}
         </RouterLink>
-        <LanguageSwitcher class="ml-auto" />
+        <div class="ml-auto flex items-center gap-4">
+          <FastDownloadQuota />
+          <LanguageSwitcher />
+        </div>
       </nav>
     </header>
     <main class="mx-auto max-w-5xl px-4 py-6">

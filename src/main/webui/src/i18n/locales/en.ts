@@ -69,4 +69,7 @@ export default {
     SUCCESS: 'Success',
     FAILED: 'Failed',
   },
+  quota: {
+    tooltip: '{remaining} of {total} fast downloads left · updated {time}',
+  },
 }

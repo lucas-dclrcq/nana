@@ -9,6 +9,9 @@ import static org.nana.testsupport.WireMockResource.server;
 
 public final class AnnaStubs {
 
+    private static final int DEFAULT_DOWNLOADS_LEFT = 21;
+    private static final int DEFAULT_DOWNLOADS_PER_DAY = 25;
+
     private AnnaStubs() {}
 
     public static String fileUrl(String path) {
@@ -28,8 +31,22 @@ public final class AnnaStubs {
                 .willReturn(okJson(fastDownloadBody(downloadUrl, error))));
     }
 
+    public static void stubFastDownloadAllIndexes(String md5, String downloadUrl, int downloadsLeft, int downloadsPerDay) {
+        server().stubFor(get(urlPathEqualTo("/dyn/api/fast_download.json"))
+                .withQueryParam("md5", equalTo(md5))
+                .willReturn(okJson(fastDownloadBody(downloadUrl, null, downloadsLeft, downloadsPerDay))));
+    }
+
     public static String fastDownloadBody(String downloadUrl, String error) {
-        return "{\"download_url\":" + jsonString(downloadUrl) + ",\"error\":" + jsonString(error) + "}";
+        return fastDownloadBody(downloadUrl, error, DEFAULT_DOWNLOADS_LEFT, DEFAULT_DOWNLOADS_PER_DAY);
+    }
+
+    public static String fastDownloadBody(String downloadUrl, String error, int downloadsLeft, int downloadsPerDay) {
+        return "{\"download_url\":" + jsonString(downloadUrl)
+                + ",\"error\":" + jsonString(error)
+                + ",\"account_fast_download_info\":{"
+                + "\"downloads_left\":" + downloadsLeft
+                + ",\"downloads_per_day\":" + downloadsPerDay + "}}";
     }
 
     public static void stubFile(String path, byte[] body) {
