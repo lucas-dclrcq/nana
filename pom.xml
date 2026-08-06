@@ -17,7 +17,7 @@
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.version>3.37.4</quarkus.platform.version>
 
-        <quinoa.version>2.8.3</quinoa.version>
+        <quinoa.version>2.8.4</quinoa.version>
         <jsoup.version>1.23.1</jsoup.version>
         <wiremock.version>3.13.2</wiremock.version>
         <playwright.version>1.61.0</playwright.version>
