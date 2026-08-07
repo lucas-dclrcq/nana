@@ -5,6 +5,7 @@ import { useGetConfig, useSearchBooks } from '../api/generated/nana'
 import { useSearchState } from '../composables/useSearchState'
 import SearchBar from '../components/SearchBar.vue'
 import SearchFilters from '../components/SearchFilters.vue'
+import FastDownloadQuota from '../components/FastDownloadQuota.vue'
 import BookResultCard from '../components/BookResultCard.vue'
 
 const { t } = useI18n()
@@ -35,6 +36,9 @@ const results = computed(() => data.value?.data ?? [])
 <template>
   <div class="space-y-4">
     <SearchBar v-model="query" @search="search" />
+    <div class="flex justify-end">
+      <FastDownloadQuota />
+    </div>
     <SearchFilters v-model:lang="lang" v-model:ext="ext" v-model:content="content" :allowed-formats="allowedFormats" />
     <p v-if="isError" class="rounded-lg border-2 border-pop-ink bg-pop-red px-4 py-3 text-sm font-bold text-white shadow-pop">
       {{ (error as Error | null)?.message ?? t('search.failed') }}
