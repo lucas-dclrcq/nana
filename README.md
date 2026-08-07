@@ -1,4 +1,7 @@
-# nana
+<img src="docs/assets/title.svg" alt="nana">
+
+[![Latest release](https://img.shields.io/github/v/release/lucas-dclrcq/nana?labelColor=141414&color=ff2d95)](https://github.com/lucas-dclrcq/nana/releases/latest)
+![Coverage](.github/badges/jacoco.svg)
 
 Self-hosted ebook downloader for Anna's Archive mirrors.
 
@@ -8,7 +11,8 @@ Self-hosted ebook downloader for Anna's Archive mirrors.
 - Download from Anna's Archive mirrors (try all mirrors until one succeeds)
 - Webhooks on download success/failure
 - History of downloads
-- Optionnaly use forward auth and username header to store who downloaded what
+- Optionnally use forward auth and username header to store who downloaded what
+- Very low on resource usage (around 60mo of RAM)
 
 _Search scrapes the mirror's `/search` HTML (results are hidden inside HTML comments);
 downloads use the members-only `/dyn/api/fast_download.json` API and iterate
@@ -23,6 +27,15 @@ _Search_
 _History_
 
 ![History](docs/assets/history_screenshot.png)
+
+## User identification
+
+Nana does not handle authentication itself. Instead, it trusts a username header set by
+your reverse proxy / forward auth (e.g. Authentik, Authelia) on `/api` requests —
+`X-Authentik-Username` by default, configurable via `NANA_AUTH_HEADER_NAME`. The username
+is stored with each download (`requestedBy`), shown in the history and included in webhook
+payloads. When the header is absent, `NANA_AUTH_FALLBACK_USERNAME` (`unknown` by default)
+is used, so the feature is entirely optional.
 
 ## Configuration
 
