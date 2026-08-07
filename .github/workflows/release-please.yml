@@ -9,6 +9,9 @@ permissions: {}
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    concurrency:
+      group: release-please-${{ github.ref }}
+      cancel-in-progress: false
     permissions:
       contents: write
       pull-requests: write
