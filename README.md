@@ -120,16 +120,19 @@ Tests (WireMock for the mirror + webhook, PostgreSQL Dev Services):
 ./mvnw verify
 ```
 
-## Container image (native, rootless)
+## Deploy with Docker Compose
+
+A ready-to-use example ([docker-compose.yml](docker-compose.yml)) runs the latest image
+from `ghcr.io/lucas-dclrcq/nana` alongside PostgreSQL, with named volumes for the
+database and downloads:
 
 ```sh
-docker build -f src/main/docker/Dockerfile.native-multistage -t nana .
-docker run --rm -p 8080:8080 -u 4242:4242 \
-  -v nana-downloads:/downloads -e NANA_DOWNLOAD_DIR=/downloads \
-  -e NANA_DB_URL=postgresql://nana:...@db:5432/nana \
-  -e ANNAS_ARCHIVE_KEY=... \
-  nana
+docker compose up -d       # UI on http://localhost:8080
 ```
+
+Set `NANA_ANNAS_ARCHIVE_SECRET_KEY` in the file before starting (required for downloads).
+
+## Container image (native, rootless)
 
 The image runs as an arbitrary non-root UID/GID (`runAsUser`/`runAsGroup` friendly): the
 binary is root-owned and read-only (`0555`), `HOME=/tmp`, and the only writable paths it

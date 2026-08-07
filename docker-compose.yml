@@ -1,0 +1,53 @@
+# Example deployment. Start with: docker compose up -d
+# Then open http://localhost:8080
+services:
+  nana:
+    image: ghcr.io/lucas-dclrcq/nana:latest
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      NANA_DB_URL: postgresql://nana:nana@db:5432/nana
+      NANA_DOWNLOAD_DIR: /downloads
+      # Anna's Archive membership secret key — required for downloads.
+      NANA_ANNAS_ARCHIVE_SECRET_KEY: change-me
+      # Optional — see the Configuration table in the README:
+      # NANA_ANNAS_ARCHIVE_MIRROR_URL: https://annas-archive.gd
+      # NANA_ALLOWED_FORMATS: epub,mobi
+      # NANA_AUTH_HEADER_NAME: X-Authentik-Username
+      # NANA_WEBHOOK_ENABLED: "true"
+      # NANA_WEBHOOK_URL: https://example.org/webhook
+    volumes:
+      - downloads:/downloads
+    depends_on:
+      db:
+        condition: service_healthy
+      downloads-permissions:
+        condition: service_completed_successfully
+
+  # The image runs as non-root (uid 1001) and fresh named volumes are
+  # root-owned; this one-shot chown makes /downloads writable.
+  downloads-permissions:
+    image: busybox:stable
+    command: chown 1001:1001 /downloads
+    volumes:
+      - downloads:/downloads
+
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: nana
+      POSTGRES_PASSWORD: nana
+      POSTGRES_DB: nana
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nana -d nana"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  downloads:
+  pgdata:
