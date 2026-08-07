@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.6.0](https://github.com/lucas-dclrcq/nana/compare/v0.5.0...v0.6.0) (2026-08-07)
+
+
+### Features
+
+* add docker compose example ([3107030](https://github.com/lucas-dclrcq/nana/commit/3107030f45d498fbace9e7bdc59a1bf0db454840))
+
+
+### Bug Fixes
+
+* **deps:** update dependency io.quarkiverse.quinoa:quarkus-quinoa to v2.8.4 ([ed5b801](https://github.com/lucas-dclrcq/nana/commit/ed5b80116a7f15cbd687e104ad2e043b2643e8f6))
+* **deps:** update dependency org.jsoup:jsoup to v1.23.1 ([031b512](https://github.com/lucas-dclrcq/nana/commit/031b51254d5a01f3c844e02327238f01110488be))
+
+
+### Documentation
+
+* document user identification in README ([5db5650](https://github.com/lucas-dclrcq/nana/commit/5db56509c5178c01eb57342295eee2ebd1b5b948))
+
 ## [0.5.0](https://github.com/lucas-dclrcq/nana/compare/v0.4.0...v0.5.0) (2026-07-26)
 
 
