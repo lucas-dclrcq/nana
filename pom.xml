@@ -15,7 +15,7 @@
 
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
-        <quarkus.platform.version>3.37.4</quarkus.platform.version>
+        <quarkus.platform.version>3.38.1</quarkus.platform.version>
 
         <quinoa.version>2.8.4</quinoa.version>
         <jsoup.version>1.23.1</jsoup.version>
