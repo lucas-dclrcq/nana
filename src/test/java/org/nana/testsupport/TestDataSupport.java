@@ -1,68 +1,74 @@
 package org.nana.testsupport;
 
-import io.quarkus.hibernate.reactive.panache.common.WithSession;
-import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
-import io.quarkus.vertx.VertxContextSupport;
-import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Instant;
-import java.util.function.Supplier;
-import org.nana.annasarchive.FastDownloadQuotaRepository;
-import org.nana.download.DownloadRepository;
-import org.nana.download.DownloadStateStore;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import javax.sql.DataSource;
+import org.flywaydb.core.Flyway;
 
+/**
+ * Test data helpers backed by Flyway and plain JDBC so tests never depend on the
+ * reactive session factory of the application under test.
+ */
 @ApplicationScoped
 public class TestDataSupport {
 
     @Inject
-    DownloadRepository repository;
+    Flyway flyway;
 
     @Inject
-    FastDownloadQuotaRepository quotaRepository;
+    DataSource dataSource;
 
-    @Inject
-    DownloadStateStore stateStore;
-
-    @Inject
-    TestDataSupport self;
-
-    public void deleteAll() {
-        await(() -> self.deleteAllReactive());
+    public void reset() {
+        flyway.clean();
+        flyway.migrate();
     }
 
     public long quotaCount() {
-        return await(() -> self.quotaCountReactive());
+        try (Connection connection = dataSource.getConnection();
+                PreparedStatement statement = connection.prepareStatement("select count(*) from fastDownloadQuota");
+                ResultSet resultSet = statement.executeQuery()) {
+            resultSet.next();
+            return resultSet.getLong(1);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public long createPending(String md5, String title, String author, String extension, String requestedBy) {
-        return await(() -> stateStore.createPending(md5, title, author, extension, requestedBy)).id;
+        String sql = "insert into download (id, md5, title, author, extension, requestedBy, status, requestedAt) "
+                + "values (nextval('download_SEQ'), ?, ?, ?, ?, ?, 'PENDING', now()) returning id";
+        try (Connection connection = dataSource.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, md5);
+            statement.setString(2, title);
+            statement.setString(3, author);
+            statement.setString(4, extension);
+            statement.setString(5, requestedBy);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                resultSet.next();
+                return resultSet.getLong(1);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void setRequestedAt(long id, Instant requestedAt) {
-        await(() -> self.setRequestedAtReactive(id, requestedAt));
-    }
-
-    @WithTransaction
-    public Uni<Void> deleteAllReactive() {
-        return repository.deleteAll().flatMap(ignored -> quotaRepository.deleteAll()).replaceWithVoid();
-    }
-
-    @WithSession
-    public Uni<Long> quotaCountReactive() {
-        return quotaRepository.count();
-    }
-
-    @WithTransaction
-    public Uni<Void> setRequestedAtReactive(long id, Instant requestedAt) {
-        return repository.findById(id).invoke(download -> download.requestedAt = requestedAt).replaceWithVoid();
-    }
-
-    private static <T> T await(Supplier<Uni<T>> uni) {
-        try {
-            return VertxContextSupport.subscribeAndAwait(uni);
-        } catch (Throwable t) {
-            throw new RuntimeException(t);
+        try (Connection connection = dataSource.getConnection();
+                PreparedStatement statement =
+                        connection.prepareStatement("update download set requestedAt = ? where id = ?")) {
+            statement.setObject(1, OffsetDateTime.ofInstant(requestedAt, ZoneOffset.UTC));
+            statement.setLong(2, id);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 }

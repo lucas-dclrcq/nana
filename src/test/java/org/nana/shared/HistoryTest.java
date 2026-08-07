@@ -2,7 +2,7 @@ package org.nana.shared;
 
 import static io.restassured.RestAssured.given;
 
-import io.quarkus.test.common.QuarkusTestResource;
+import io.quarkus.test.common.WithTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.Header;
 import jakarta.inject.Inject;
@@ -14,7 +14,7 @@ import org.nana.testsupport.TestDataSupport;
 import org.nana.testsupport.WireMockResource;
 
 @QuarkusTest
-@QuarkusTestResource(value = WireMockResource.class, restrictToAnnotatedClass = true)
+@WithTestResource(WireMockResource.class)
 class HistoryTest {
 
     private static final Header AUTH = new Header("X-Authentik-Username", "lucas");
@@ -24,7 +24,7 @@ class HistoryTest {
 
     @Test
     void paginatesHistoryMostRecentFirst() {
-        testData.deleteAll();
+        testData.reset();
         Instant now = Instant.now();
         long oldest = testData.createPending("0000000000000000000000000000000a", "Oldest", null, "epub", "lucas");
         long middle = testData.createPending("0000000000000000000000000000000b", "Middle", null, "epub", "lucas");

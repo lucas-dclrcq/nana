@@ -8,7 +8,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static io.restassured.RestAssured.given;
 import static org.nana.testsupport.WireMockResource.server;
 
-import io.quarkus.test.common.QuarkusTestResource;
+import io.quarkus.test.common.WithTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.nana.testsupport.WireMockResource;
 
 @QuarkusTest
-@QuarkusTestResource(value = WireMockResource.class, restrictToAnnotatedClass = true)
+@WithTestResource(WireMockResource.class)
 class SearchResourceTest {
 
     @BeforeEach

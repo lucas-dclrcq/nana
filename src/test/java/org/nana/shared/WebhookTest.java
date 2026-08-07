@@ -14,7 +14,7 @@ import static org.nana.testsupport.AnnaStubs.stubFastDownloadAllIndexes;
 import static org.nana.testsupport.AnnaStubs.stubFile;
 import static org.nana.testsupport.WireMockResource.server;
 
-import io.quarkus.test.common.QuarkusTestResource;
+import io.quarkus.test.common.WithTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.QuarkusTestProfile;
 import io.quarkus.test.junit.TestProfile;
@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.nana.testsupport.WireMockResource;
 
 @QuarkusTest
-@QuarkusTestResource(value = WireMockResource.class, restrictToAnnotatedClass = true)
+@WithTestResource(WireMockResource.class)
 @TestProfile(WebhookTest.WebhookEnabledProfile.class)
 class WebhookTest {
 

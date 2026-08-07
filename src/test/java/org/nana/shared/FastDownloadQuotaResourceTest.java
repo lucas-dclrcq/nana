@@ -8,7 +8,7 @@ import static org.nana.testsupport.AnnaStubs.stubFastDownloadAllIndexes;
 import static org.nana.testsupport.AnnaStubs.stubFile;
 import static org.nana.testsupport.WireMockResource.server;
 
-import io.quarkus.test.common.QuarkusTestResource;
+import io.quarkus.test.common.WithTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 import io.restassured.http.Header;
@@ -23,7 +23,7 @@ import org.nana.testsupport.TestDataSupport;
 import org.nana.testsupport.WireMockResource;
 
 @QuarkusTest
-@QuarkusTestResource(value = WireMockResource.class, restrictToAnnotatedClass = true)
+@WithTestResource(WireMockResource.class)
 class FastDownloadQuotaResourceTest {
 
     private static final Header AUTH = new Header("X-Authentik-Username", "lucas");
@@ -34,7 +34,7 @@ class FastDownloadQuotaResourceTest {
     @BeforeEach
     void reset() {
         server().resetAll();
-        testData.deleteAll();
+        testData.reset();
     }
 
     @Test
