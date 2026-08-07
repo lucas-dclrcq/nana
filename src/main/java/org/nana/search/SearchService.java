@@ -9,6 +9,7 @@ import org.nana.annasarchive.SearchHit;
 import org.nana.shared.ApiDtos.SearchResult;
 import org.nana.shared.ApiException;
 import org.nana.shared.config.FormatPolicy;
+import org.nana.shared.metrics.NanaMetrics;
 
 import java.util.List;
 
@@ -17,14 +18,16 @@ public class SearchService {
 
     private final AnnasArchiveClient searchClient;
     private final FormatPolicy formatPolicy;
+    private final NanaMetrics metrics;
 
-    public SearchService(@RestClient AnnasArchiveClient searchClient, FormatPolicy formatPolicy) {
+    public SearchService(@RestClient AnnasArchiveClient searchClient, FormatPolicy formatPolicy, NanaMetrics metrics) {
         this.searchClient = searchClient;
         this.formatPolicy = formatPolicy;
+        this.metrics = metrics;
     }
 
     public Uni<List<SearchResult>> search(String query, String language, String extension, String content) {
-        return searchClient.search(
+        return metrics.timeSearch(() -> searchClient.search(
                         query.trim(),
                         blankToNull(language),
                         blankToNull(extension),
@@ -33,7 +36,7 @@ public class SearchService {
                 .map(html -> AnnaArchiveHtmlParser.parse(html).stream()
                         .filter(hit -> formatPolicy.isAllowed(hit.extension()))
                         .map(SearchService::toDto)
-                        .toList());
+                        .toList()));
     }
 
     private static SearchResult toDto(SearchHit hit) {

@@ -98,6 +98,12 @@ error, and `filePath`/`sizeBytes`/`finishedAt` may be `null`:
 }
 ```
 
+## Monitoring
+
+Prometheus metrics are exposed on `GET /q/metrics` (search duration, download duration,
+download counts by status, Anna's Archive fast-download quota). See [monitoring/](monitoring/)
+for the scrape config and a ready-to-import Grafana dashboard.
+
 ## Development
 
 ```sh
