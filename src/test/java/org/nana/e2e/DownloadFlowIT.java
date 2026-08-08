@@ -160,7 +160,7 @@ class DownloadFlowIT {
         assertThat(downloadButton).hasText("Success ✓",
                 new LocatorAssertions.HasTextOptions().setTimeout(30_000));
 
-        assertThat(page.locator("header span.pop-badge.bg-pop-cyan"))
+        assertThat(page.locator("main span.pop-badge.bg-pop-cyan"))
                 .containsText("21 / 25",
                         new LocatorAssertions.ContainsTextOptions().setTimeout(30_000));
 

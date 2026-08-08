@@ -1,5 +1,7 @@
 target/*
 !target/*-runner
+!target/quarkus-app
+!target/quarkus-app/**
 src/main/webui/node_modules/
 src/main/webui/dist/
 .git/
