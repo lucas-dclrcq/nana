@@ -16,6 +16,7 @@ const STYLES: Record<string, string> = {
 
 <template>
   <span
+    data-testid="status-badge"
     class="pop-badge"
     :class="STYLES[props.status ?? ''] ?? 'bg-pop-yellow text-pop-ink'"
   >

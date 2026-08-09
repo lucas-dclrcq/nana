@@ -28,7 +28,7 @@ const totalPages = () => Math.max(props.page.totalPages ?? 1, 1)
           </tr>
         </thead>
         <tbody>
-          <tr v-for="download in page.content" :key="download.id" class="border-b-2 border-pop-ink/20 last:border-0">
+          <tr v-for="download in page.content" :key="download.id" data-testid="history-row" class="border-b-2 border-pop-ink/20 last:border-0">
             <td class="max-w-56 px-4 py-2">
               <p class="truncate font-semibold" :title="download.title">{{ download.title }}</p>
               <p v-if="download.author" class="truncate text-xs text-pop-ink/60">{{ download.author }}</p>

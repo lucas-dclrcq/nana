@@ -72,7 +72,7 @@ function download() {
 </script>
 
 <template>
-  <li class="pop-card flex gap-3 p-3 hover:-translate-y-1">
+  <li data-testid="book-card" class="pop-card flex gap-3 p-3 hover:-translate-y-1">
     <img
       v-if="book.coverUrl"
       :src="book.coverUrl"
@@ -94,6 +94,7 @@ function download() {
         <button
           type="button"
           :disabled="busy"
+          data-testid="download-button"
           class="pop-btn px-3 py-1.5 text-xs"
           @click="download"
         >

@@ -146,29 +146,29 @@ class DownloadFlowIT {
     void searchWithFilterThenDownloadThenBadgeQuotaHistory() {
         page.navigate(base.toString());
 
-        page.locator("select.bg-pop-yellow").selectOption("epub");
+        page.getByTestId("filter-format").selectOption("epub");
         page.getByRole(AriaRole.SEARCHBOX).fill("dune");
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Search")).click();
 
-        Locator card = page.locator("li.pop-card")
+        Locator card = page.getByTestId("book-card")
                 .filter(new Locator.FilterOptions().setHasText("Dune"))
                 .first();
-        Locator downloadButton = card.locator("button.pop-btn");
+        Locator downloadButton = card.getByTestId("download-button");
         assertThat(downloadButton).hasText("Download");
         downloadButton.click();
 
         assertThat(downloadButton).hasText("Success ✓",
                 new LocatorAssertions.HasTextOptions().setTimeout(30_000));
 
-        assertThat(page.locator("main span.pop-badge.bg-pop-cyan"))
+        assertThat(page.getByTestId("quota-badge"))
                 .containsText("21 / 25",
                         new LocatorAssertions.ContainsTextOptions().setTimeout(30_000));
 
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("History")).click();
-        Locator row = page.locator("table tbody tr")
+        Locator row = page.getByTestId("history-row")
                 .filter(new Locator.FilterOptions().setHasText("Dune"))
                 .first();
-        assertThat(row.locator("span.pop-badge")).containsText("Success",
+        assertThat(row.getByTestId("status-badge")).containsText("Success",
                 new LocatorAssertions.ContainsTextOptions().setTimeout(30_000));
 
         await().atMost(Duration.ofSeconds(10)).untilAsserted(() ->

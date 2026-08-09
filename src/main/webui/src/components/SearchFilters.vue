@@ -47,6 +47,7 @@ watch(
   <div class="flex flex-wrap gap-2">
     <select
         v-model="lang"
+        data-testid="filter-language"
         class="pop-input bg-pop-cyan px-2 py-1.5 text-sm font-semibold"
     >
       <option value="">{{ t('filters.anyLanguage') }}</option>
@@ -55,6 +56,7 @@ watch(
     <select
         v-if="!single"
         v-model="ext"
+        data-testid="filter-format"
         class="pop-input bg-pop-yellow px-2 py-1.5 text-sm font-semibold"
     >
       <option value="">{{ t('filters.anyFormat') }}</option>
@@ -62,6 +64,7 @@ watch(
     </select>
     <select
         v-model="content"
+        data-testid="filter-content-type"
         class="pop-input bg-pop-blue px-2 py-1.5 text-sm font-semibold text-white"
     >
       <option value="">{{ t('filters.anyType') }}</option>

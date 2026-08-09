@@ -25,6 +25,7 @@ const tooltip = computed(() =>
 <template>
   <span
     v-if="hasQuota"
+    data-testid="quota-badge"
     class="pop-badge bg-pop-cyan text-pop-ink"
     :title="tooltip"
     :aria-label="tooltip"
