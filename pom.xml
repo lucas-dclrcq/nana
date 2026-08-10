@@ -72,12 +72,19 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-data-hibernate</artifactId>
         </dependency>
-        <!-- Required as a direct dependency: without it the native image build leaves the
-             reactive repository backend out and every persist fails at runtime with
-             "Reactive operations are not available" (JVM mode works either way). -->
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-hibernate-reactive</artifactId>
+        </dependency>
+        <!-- Required for native only, and only for the class it puts on the classpath:
+             quarkus-data-hibernate substitutes its reactive backend away in native images unless
+             io.quarkus.hibernate.reactive.panache.Panache is present (see
+             PanacheOperationsSubstitutions.NoHibernateReactive), and that class ships here rather
+             than in quarkus-hibernate-reactive. Without it every persist fails at runtime with
+             "Reactive operations are not available" while JVM mode works fine. -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-hibernate-reactive-panache</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
