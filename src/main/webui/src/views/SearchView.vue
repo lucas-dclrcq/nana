@@ -36,10 +36,10 @@ const results = computed(() => data.value?.data ?? [])
 <template>
   <div class="space-y-4">
     <SearchBar v-model="query" @search="search" />
-    <div class="flex justify-end">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <SearchFilters v-model:lang="lang" v-model:ext="ext" v-model:content="content" :allowed-formats="allowedFormats" />
       <FastDownloadQuota />
     </div>
-    <SearchFilters v-model:lang="lang" v-model:ext="ext" v-model:content="content" :allowed-formats="allowedFormats" />
     <p v-if="isError" class="rounded-lg border-2 border-pop-ink bg-pop-red px-4 py-3 text-sm font-bold text-white shadow-pop">
       {{ (error as Error | null)?.message ?? t('search.failed') }}
     </p>
