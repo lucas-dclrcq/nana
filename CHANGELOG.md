@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.7.0](https://github.com/lucas-dclrcq/nana/compare/v0.6.0...v0.7.0) (2026-08-10)
+
+
+### Features
+
+* add smallrye health ([da94d8c](https://github.com/lucas-dclrcq/nana/commit/da94d8c61676547e29825a28018f6e23e87e2dea))
+* expose prometheus metrics ([f50a518](https://github.com/lucas-dclrcq/nana/commit/f50a518a8b88df4d3b84ddf9bad766cffe0d5824))
+
+
+### Bug Fixes
+
+* fix E2E test ([3a6183e](https://github.com/lucas-dclrcq/nana/commit/3a6183e5d92594d70f5dcfc8baa2fe3fe169cc04))
+* fix native image build because of hibernate reactive ([af7a6a7](https://github.com/lucas-dclrcq/nana/commit/af7a6a7aa7415203cb005046a8bd1fe8a48c9467))
+* replace test data support with flyway to reset db between tests ([e919949](https://github.com/lucas-dclrcq/nana/commit/e919949320a3f22aa11b3484872fe114012ffa83))
+
 ## [0.6.0](https://github.com/lucas-dclrcq/nana/compare/v0.5.0...v0.6.0) (2026-08-07)
 
 
