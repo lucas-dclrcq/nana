@@ -12,7 +12,7 @@ services:
       # Anna's Archive membership secret key — required for downloads.
       NANA_ANNAS_ARCHIVE_SECRET_KEY: change-me
       # Optional — see the Configuration table in the README:
-      # NANA_ANNAS_ARCHIVE_MIRROR_URL: https://annas-archive.gd
+      # NANA_ANNAS_ARCHIVE_MIRROR_URL: https://annas-archive.gl
       # NANA_ALLOWED_FORMATS: epub,mobi
       # NANA_AUTH_HEADER_NAME: X-Authentik-Username
       # NANA_WEBHOOK_ENABLED: "true"

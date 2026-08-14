@@ -43,7 +43,7 @@ is used, so the feature is entirely optional.
 |---------------------------------------|----------------------------|---------------------------------------------------------------------------------------------------|
 | `NANA_AUTH_HEADER_NAME`               | `X-Authentik-Username`     | Trusted username header                                                                           |
 | `NANA_AUTH_FALLBACK_USERNAME`         | `unknown`                  | Fallback username when no header                                                                  |
-| `NANA_ANNAS_ARCHIVE_MIRROR_URL`       | `https://annas-archive.gd` | Mirror base URL                                                                                   |
+| `NANA_ANNAS_ARCHIVE_MIRROR_URL`       | `https://annas-archive.gl` | Mirror base URL (override if this mirror is unreachable, e.g. `https://annas-archive.se`)          |
 | `NANA_ANNAS_ARCHIVE_SECRET_KEY`       | _(empty)_                  | Membership secret key (required for downloads)                                                    |
 | `NANA_ANNAS_ARCHIVE_MAX_DOMAIN_INDEX` | `2`                        | Retries `domain_index` 0..N                                                                       |
 | `NANA_ALLOWED_FORMATS`                | _(all known formats)_      | Comma-separated allowed formats. Narrow (e.g. `epub,mobi`) to filter search results, downloads and the UI format dropdown |
