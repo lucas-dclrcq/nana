@@ -30,6 +30,7 @@ public interface NanaConfiguration {
         String mirrorUrl();
         Optional<String> secretKey();
         Long maxDomainIndex();
+        String userAgent();
     }
     
     interface Download {

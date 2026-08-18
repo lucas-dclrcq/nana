@@ -46,6 +46,7 @@ is used, so the feature is entirely optional.
 | `NANA_ANNAS_ARCHIVE_MIRROR_URL`       | `https://annas-archive.gd` | Mirror base URL                                                                                   |
 | `NANA_ANNAS_ARCHIVE_SECRET_KEY`       | _(empty)_                  | Membership secret key (required for downloads)                                                    |
 | `NANA_ANNAS_ARCHIVE_MAX_DOMAIN_INDEX` | `2`                        | Retries `domain_index` 0..N                                                                       |
+| `NANA_ANNAS_ARCHIVE_USER_AGENT`       | _(a Chrome browser UA)_    | `User-Agent` header sent to Anna's Archive, so anti-DDoS protection doesn't block requests        |
 | `NANA_ALLOWED_FORMATS`                | _(all known formats)_      | Comma-separated allowed formats. Narrow (e.g. `epub,mobi`) to filter search results, downloads and the UI format dropdown |
 | `NANA_DOWNLOAD_DIRECTORY`             | `$TMPDIR/nana/downloads`   | Target directory (mount a volume)                                                                 |
 | `NANA_DOWNLOAD_TIMEOUT`               | `5M`                       | Download timeout                                                                                  |

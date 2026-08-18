@@ -1,5 +1,6 @@
 package org.nana.shared;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
@@ -82,7 +83,10 @@ class DownloadResourceTest {
                 .withQueryParam("md5", equalTo(md5))
                 .withQueryParam("key", equalTo("test-key"))
                 .withQueryParam("path_index", equalTo("0"))
-                .withQueryParam("domain_index", equalTo("0")));
+                .withQueryParam("domain_index", equalTo("0"))
+                .withHeader("User-Agent", containing("Mozilla/5.0")));
+        server().verify(getRequestedFor(urlPathEqualTo("/files/dune.epub"))
+                .withHeader("User-Agent", containing("Mozilla/5.0")));
     }
 
     @Test
