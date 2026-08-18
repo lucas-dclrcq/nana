@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.9.0](https://github.com/lucas-dclrcq/nana/compare/v0.8.0...v0.9.0) (2026-08-18)
+
+
+### Features
+
+* log anna http erors ([c42d135](https://github.com/lucas-dclrcq/nana/commit/c42d135673f5b9f3d78e8454a1572cfa28c6db46))
+
+
+### Bug Fixes
+
+* **deps:** update dependency io.quarkiverse.quinoa:quarkus-quinoa to v2.9.0 ([5e66603](https://github.com/lucas-dclrcq/nana/commit/5e66603e1565a665b4a2d7e1ee2cdc752220f86c))
+* **deps:** update quarkus.platform.version to v3.38.2 ([731c537](https://github.com/lucas-dclrcq/nana/commit/731c537811b1e51d6142019cfaa0f392c37c8536))
+
 ## [0.8.0](https://github.com/lucas-dclrcq/nana/compare/v0.7.0...v0.8.0) (2026-08-18)
 
 
