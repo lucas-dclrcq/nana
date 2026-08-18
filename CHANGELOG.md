@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/lucas-dclrcq/nana/compare/v0.7.0...v0.8.0) (2026-08-18)
+
+
+### Features
+
+* set browser like user agent to bypass ddos protection ([d5f1713](https://github.com/lucas-dclrcq/nana/commit/d5f1713e6935399457d9d495bdc4a288529fb7b0))
+
 ## [0.7.0](https://github.com/lucas-dclrcq/nana/compare/v0.6.0...v0.7.0) (2026-08-10)
 
 
