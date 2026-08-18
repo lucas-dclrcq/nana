@@ -76,7 +76,7 @@ public class DownloadJobRunner {
                     }
                     
                     String error = failure.getMessage();
-                    Log.warnf("Download %d attempt with domain index %d failed: %s", downloadId, domainIndex, error);
+                    Log.warnf(failure, "Download %d attempt with domain index %d failed: %s", downloadId, domainIndex, error);
                     return gateway.deleteQuietly(partFile)
                             .flatMap(ignored -> attempt(downloadId, job, domainIndex + 1, error));
                 });

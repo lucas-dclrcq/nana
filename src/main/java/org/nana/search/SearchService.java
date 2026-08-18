@@ -1,5 +1,6 @@
 package org.nana.search;
 
+import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -32,6 +33,7 @@ public class SearchService {
                         blankToNull(language),
                         blankToNull(extension),
                         blankToNull(content))
+                .onFailure().invoke(e -> Log.errorf(e, "Anna's Archive search failed (query '%s')", query))
                 .onFailure().transform(e -> ApiException.badGateway("Anna's Archive search failed"))
                 .map(html -> AnnaArchiveHtmlParser.parse(html).stream()
                         .filter(hit -> formatPolicy.isAllowed(hit.extension()))

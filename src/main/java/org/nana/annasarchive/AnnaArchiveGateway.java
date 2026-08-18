@@ -99,9 +99,9 @@ public class AnnaArchiveGateway {
 
     private AnnaArchiveException mapDownloadFailure(Throwable failure) {
         if (failure instanceof TimeoutException || failure.getClass().getSimpleName().contains("Timeout")) {
-            return new AnnaArchiveException("file download timed out after " + config.download().timeout().toMillis() + "ms");
+            return new AnnaArchiveException("file download timed out after " + config.download().timeout().toMillis() + "ms", failure);
         }
-        return new AnnaArchiveException("file download failed: " + rootMessage(failure));
+        return new AnnaArchiveException("file download failed: " + rootMessage(failure), failure);
     }
 
     private Uni<Void> ensureParent(Path target) {
