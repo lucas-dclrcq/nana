@@ -1,5 +1,6 @@
 package org.nana.search;
 
+import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -29,6 +30,9 @@ public class SearchResource {
         if (query == null || query.isBlank()) {
             return Uni.createFrom().failure(ApiException.badRequest("q is required"));
         }
+
+        Log.debugf("Searching for %s", query);
+
         return searchService.search(query, language, extension, content);
     }
 }

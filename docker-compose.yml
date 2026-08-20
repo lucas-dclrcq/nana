@@ -17,6 +17,9 @@ services:
       # NANA_AUTH_HEADER_NAME: X-Authentik-Username
       # NANA_WEBHOOK_ENABLED: "true"
       # NANA_WEBHOOK_URL: https://example.org/webhook
+      # Bypass DDOS-Guard on search via a FlareSolverr instance you run yourself:
+      # NANA_FLARESOLVERR_ENABLED: "true"
+      # NANA_FLARESOLVERR_URL: http://flaresolverr:8191
     volumes:
       - downloads:/downloads
     depends_on:

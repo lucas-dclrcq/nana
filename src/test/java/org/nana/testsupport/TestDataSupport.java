@@ -60,6 +60,29 @@ public class TestDataSupport {
         }
     }
 
+    public void insertDdosGuardCookies(String cookieHeader) {
+        String sql = "insert into ddosGuardCookies (id, cookieHeader, updatedAt) "
+                + "values (nextval('ddosGuardCookies_SEQ'), ?, now())";
+        try (Connection connection = dataSource.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, cookieHeader);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String ddosGuardCookieHeader() {
+        try (Connection connection = dataSource.getConnection();
+                PreparedStatement statement =
+                        connection.prepareStatement("select cookieHeader from ddosGuardCookies order by id desc");
+                ResultSet resultSet = statement.executeQuery()) {
+            return resultSet.next() ? resultSet.getString(1) : null;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void setRequestedAt(long id, Instant requestedAt) {
         try (Connection connection = dataSource.getConnection();
                 PreparedStatement statement =

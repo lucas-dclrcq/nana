@@ -14,6 +14,7 @@ public interface NanaConfiguration {
     AnnasArchive annasArchive();
     Download download();
     Webhook webhook();
+    Flaresolverr flaresolverr();
 
     // Comma-separated allowed ebook formats (env NANA_ALLOWED_FORMATS). Defaults to the parser's
     // full format universe (AnnaArchiveHtmlParser), so an unset config allows every format. Narrow
@@ -41,5 +42,18 @@ public interface NanaConfiguration {
     interface Webhook {
         boolean enabled();
         Optional<String> url();
+    }
+
+    // Routes the DDOS-Guard-protected /search request through a FlareSolverr-compatible proxy
+    // (e.g. flaresolverr-go). Disabled by default; when off, search hits the mirror directly.
+    interface Flaresolverr {
+        @WithDefault("false")
+        boolean enabled();
+
+        @WithDefault("http://localhost:8191")
+        String url();
+
+        @WithDefault("60000")
+        long maxTimeout();
     }
 }

@@ -25,6 +25,9 @@ public class WireMockResource implements QuarkusTestResourceLifecycleManager {
         config.put("nana.annas-archive.mirror-url", base);
         config.put("nana.annas-archive.secret-key", "test-key");
         config.put("nana.webhook.url", base + "/webhook");
+        // Point the FlareSolverr client at the same WireMock server; only exercised when
+        // nana.flaresolverr.enabled is turned on (e.g. via a test profile).
+        config.put("quarkus.rest-client.flaresolverr.url", base);
         return config;
     }
 

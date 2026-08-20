@@ -52,7 +52,24 @@ is used, so the feature is entirely optional.
 | `NANA_DOWNLOAD_TIMEOUT`               | `5M`                       | Download timeout                                                                                  |
 | `NANA_WEBHOOK_ENABLED`                | `false`                    | Enable webhooks                                                                                   |
 | `NANA_WEBHOOK_URL`                    | _(empty)_                  | Webhook target URL                                                                                |
+| `NANA_FLARESOLVERR_ENABLED`           | `false`                    | Route `/search` through a FlareSolverr proxy to bypass DDOS-Guard (see below)                     |
+| `NANA_FLARESOLVERR_URL`               | `http://localhost:8191`    | Base URL of the FlareSolverr instance                                                            |
+| `NANA_FLARESOLVERR_MAX_TIMEOUT`       | `60000`                    | Max time (ms) FlareSolverr may spend solving the challenge                                       |
 | `NANA_DB_URL`                         | —                          | PostgreSQL URL, e.g. `postgresql://user:pass@host:5432/db` (prod only; dev/test use Dev Services) |
+
+### Bypassing DDOS-Guard on search
+
+When Anna's Archive serves its search page behind DDOS-Guard, the direct request is blocked.
+Set `NANA_FLARESOLVERR_ENABLED=true` and point `NANA_FLARESOLVERR_URL` at a running
+[FlareSolverr](https://github.com/FlareSolverr/FlareSolverr)-compatible instance (e.g.
+[flaresolverr-go](https://github.com/Rorqualx/flaresolverr-go)) — nana then fetches the search
+HTML through it. Only `/search` is proxied; download resolution and file transfers are
+unaffected. You must run and reach the FlareSolverr instance yourself (it is not bundled).
+
+The DDOS-Guard cookies from a solved challenge are persisted in the database and replayed on
+direct requests to the mirror, so the browser challenge is only re-solved when the cookies
+expire — searches after the first one skip FlareSolverr entirely and take well under a second,
+including across application restarts.
 
 ## Webhooks
 
