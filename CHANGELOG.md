@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.10.0](https://github.com/lucas-dclrcq/nana/compare/v0.9.0...v0.10.0) (2026-08-22)
+
+
+### Features
+
+* allow using flaresolverr to bypass ddos guard ([7c5437c](https://github.com/lucas-dclrcq/nana/commit/7c5437c6770f8b435d22868a06b3d30b0e75c979))
+
+
+### Bug Fixes
+
+* disable flaresolverr in it tests ([5069ee8](https://github.com/lucas-dclrcq/nana/commit/5069ee89e6af5ee7b64edeed2183e4c93f4dbf98))
+
 ## [0.9.0](https://github.com/lucas-dclrcq/nana/compare/v0.8.0...v0.9.0) (2026-08-18)
 
 
