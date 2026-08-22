@@ -1,7 +1,7 @@
 {
   "name": "nana-webui",
   "private": true,
-  "version": "0.9.0",
+  "version": "0.9.1-SNAPSHOT",
   "type": "module",
   "scripts": {
     "dev": "vite",
