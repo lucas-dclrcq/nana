@@ -31,6 +31,13 @@ useDownloadEvents()
         >
           {{ t('nav.history') }}
         </RouterLink>
+        <RouterLink
+          to="/bookmarklet"
+          class="text-sm font-semibold uppercase tracking-wide text-pop-ink/70 hover:text-pop-ink"
+          active-class="!text-pop-ink border-b-2 border-pop-pink"
+        >
+          {{ t('nav.bookmarklet') }}
+        </RouterLink>
         <div class="ml-auto flex items-center gap-4">
           <LanguageSwitcher />
         </div>

@@ -2,6 +2,7 @@ export default {
   nav: {
     search: 'Search',
     history: 'History',
+    bookmarklet: 'Bookmarklet',
   },
   language: {
     label: 'Language',
@@ -71,5 +72,21 @@ export default {
   },
   quota: {
     tooltip: '{remaining} of {total} fast downloads left · updated {time}',
+  },
+  md5: {
+    label: 'Download by MD5',
+    invalid: 'Invalid MD5',
+    invalidHint: 'This page expects an Anna’s Archive MD5 in the URL (e.g. /md5/8efbf8e9f8b4592c7b0dbedec9c0ec05).',
+    launching: 'Starting…',
+    error: 'Error',
+    retry: 'Retry',
+    backToSearch: 'Back to search',
+  },
+  bookmarklet: {
+    title: 'Download bookmarklet',
+    intro: 'Drag the bookmarklet to your bookmarks bar, or create a bookmark with this URL. On an Anna’s Archive book page (…/md5/…), click it to start the download on nana.',
+    name: 'nana → download',
+    copy: 'Copy',
+    copied: 'Copied ✓',
   },
 }

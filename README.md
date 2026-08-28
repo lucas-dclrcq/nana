@@ -9,6 +9,7 @@ Self-hosted ebook downloader for Anna's Archive mirrors.
 
 - Search for books, filter on language, format, content type
 - Download from Anna's Archive mirrors (try all mirrors until one succeeds)
+- Download straight from an Anna's Archive book page via a bookmarklet (MD5 route)
 - Webhooks on download success/failure
 - History of downloads
 - Optionnally use forward auth and username header to store who downloaded what
@@ -70,6 +71,27 @@ The DDOS-Guard cookies from a solved challenge are persisted in the database and
 direct requests to the mirror, so the browser challenge is only re-solved when the cookies
 expire — searches after the first one skip FlareSolverr entirely and take well under a second,
 including across application restarts.
+
+### Download from an Anna's Archive page (bookmarklet)
+
+When the search bypass is unreliable, you can skip nana's search entirely: browse Anna's
+Archive directly in your browser, open the book page (`https://annas-archive.gd/md5/<md5>`)
+and click a bookmarklet. It opens `https://<your-nana>/md5/<md5>` with the title and format
+from the page, and nana queues the download immediately.
+
+The easiest way to get the bookmarklet is the **Bookmarklet** page in nana's nav — it generates
+the bookmarklet pre-filled with your nana URL. Drag the `nana → download` link to your bookmarks
+bar, or copy the URL into a new bookmark.
+
+You can also create the bookmark manually. Replace `NANA_URL` with your nana base URL
+(e.g. `https://nana.example.com`):
+
+```
+javascript:(()=>{const NANA='NANA_URL';const m=location.pathname.match(/\/md5\/([0-9a-fA-F]{32})/);if(!m){alert('No MD5 found on this page');return;}const t=(document.title||'').replace(/\s*[-–—|]\s*Anna's Archive.*$/i,'').trim();const ext=((document.body.innerText||'').match(/(?:\.|\b)(epub|pdf|mobi|azw3|kepub|cbz|djvu|fb2)\b/i)||[])[1]||'';const u=new URL('/md5/'+m[1].toLowerCase(),NANA);if(t)u.searchParams.set('title',t);if(ext)u.searchParams.set('extension',ext);window.open(u.toString(),'_blank');})();
+```
+
+The download still uses the members-only `/dyn/api/fast_download.json` endpoint and
+`NANA_ANNAS_ARCHIVE_SECRET_KEY`, exactly like downloads started from nana's search results.
 
 ## Webhooks
 
