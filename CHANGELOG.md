@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.0](https://github.com/lucas-dclrcq/nana/compare/v0.10.0...v0.11.0) (2026-08-28)
+
+
+### Features
+
+* download from an Anna's Archive page via md5 bookmarklet ([645f0ea](https://github.com/lucas-dclrcq/nana/commit/645f0ea648779b78eb59db616b74bbb256c5585a))
+
 ## [0.10.0](https://github.com/lucas-dclrcq/nana/compare/v0.9.0...v0.10.0) (2026-08-22)
 
 
